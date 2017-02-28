@@ -4,7 +4,7 @@ setup(
     packages = ['lokey'],
     version = '0.0.2',
     description = 'A tool to convert between different cryptographic key formats',
-    author = 'Joël Franusic',
+    author = 'Joel Franusic',
     author_email = 'jfranusic@gmail.com',
     url = 'https://github.com/jpf/lokey',
     download_url = 'https://github.com/jpf/lokey/archive/0.0.2.tar.gz',
