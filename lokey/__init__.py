@@ -188,7 +188,7 @@ class ErisPublicNumbers(rsa.RSAPublicNumbers):
 
 
 @click.group(invoke_without_command=True)
-@click.version_option("0.0.1")
+@click.version_option("0.0.2")
 @click.pass_context
 def cli(ctx):
     if sys.__stdin__.isatty():
