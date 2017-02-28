@@ -398,33 +398,27 @@
              pass
    #+end_src
 
-
 ** Come up with command examples
+   CLOCK: [2017-02-28 Tue 00:03]--[2017-02-28 Tue 00:04] =>  0:01
    CLOCK: [2017-02-16 Thu 00:29]--[2017-02-16 Thu 00:48] =>  0:00
    #+BEGIN_EXAMPLE
      cmd --help
-     cat key.jwk | cmd --to openssh
-     cat key.jwk | cmd to openssh
-     cat key.jwk | cmd make openssh
-     cat key.jwk | cmd into openssh
-     cat key.jwk | cmd change-to openssh
-     cat key.jwk | cmd change openssh
-     cat key.jwk | cmd make pgp --name="Joel Franusic" --email="joel@franusic.com"
-     cmd fetch jwk example.okta.com --kid=252z | cmd make openssh
-     cmd fetch pgp joel@franusic.com
-     cmd fetch x509 joel.franusic.com
-     cmd fetch dkim joel.franusic.com
-     cmd fetch github jpf
-     cmd fetch keybase jfranusic
+     cat key.jwk | lokey to openssh
+     cat key.jwk | lokey to pgp --name="Joel Franusic" --email="joel@franusic.com"
+     lokey fetch jwk example.okta.com --kid=1b3c5 | lokey to openssh
+     lokey fetch pgp joel@franusic.com
+     lokey fetch x509 joel.franusic.com
+     lokey fetch github jpf
+     lokey fetch keybase jfranusic
    #+END_EXAMPLE
-** Write load() method
+** DONE Write load() method
    CLOCK: [2017-02-16 Thu 00:00]--[2017-02-16 Thu 00:29] =>  0:29
 ** DONE Think about x509 and PGP input some more
    CLOCK: [2017-02-15 Wed 22:45]--[2017-02-15 Wed 23:09] =>  0:24
-** Command line libraries
+** DONE Command line libraries
    Going to take a look at HHGTP for a bit too
    CLOCK: [2017-02-15 Wed 22:22]--[2017-02-15 Wed 22:31] =>  0:09
-** Make command line POC
+** DONE Make command line POC
    Awww yiss
    CLOCK: [2017-02-16 Thu 22:40]--[2017-02-16 Thu 23:57] =>  1:17
    I'll use the name "Eris"
@@ -433,14 +427,13 @@
 
 ** DONE Figure out what I need to do next
    CLOCK: [2017-02-18 Sat 01:36]--[2017-02-18 Sat 02:19] =>  0:43
-** Look into how people think about RSA keys
+** DONE Look into how people think about RSA keys
    CLOCK: [2017-02-18 Sat 02:24]--[2017-02-18 Sat 02:26] =>  0:02
    - https://stackoverflow.com/q/5244129
 ** DONE Figure out how hard it will be to use the Keybase api
    CLOCK: [2017-02-18 Sat 23:07]--[2017-02-18 Sat 23:08] =>  0:01
    ... trivial: https://github.com/ianchesal/keybase-python
-** TODO (NEXT) estimate time for items below, also make sure I didn't miss anything above
-** Cleanup work
+** DONE Cleanup work
    CLOCK: [2017-02-26 Sun 11:25]--[2017-02-26 Sun 12:01] =>  0:36
    - Create requirements.txt
    - Installing OpenSSL. I hate OpenSSL. 
@@ -547,7 +540,183 @@
     similar are likely managing their DKIM keys.
 *** Launchpad
     https://pypi.python.org/pypi/ssh-import-id/5.6
-** v1 research
+** TODO Make list of what I need to do before I can launch "v1"
+   CLOCK: [2017-02-28 Tue 00:07]--[2017-02-28 Tue 00:11] =>  0:04
+   CLOCK: [2017-02-19 Sun 23:26]--[2017-02-19 Sun 23:31] =>  0:05
+   CLOCK: [2017-02-19 Sun 23:17]--[2017-02-19 Sun 23:26] =>  0:09
+   CLOCK: [2017-02-19 Sun 00:55]--[2017-02-19 Sun 01:03] =>  0:08
+** DONE Test JWK > PEM encoding with known good keys from Okta
+   - Going to call it "pem", this is what cryptography.io does (load_pem_public_key)
+   - Got it working!!
+   CLOCK: [2017-02-24 Fri 23:13]--[2017-02-24 Fri 23:27] =>  0:14
+   I don't know what to call a key that looks like this:
+   #+BEGIN_EXAMPLE
+     -----BEGIN PUBLIC KEY-----
+     MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgamsZfaSoeje3ychyFxv
+     SnVvwLetawpY70HsTpa11m/KvTMChFuD3ApLyRxrTS/iWApTnVTVqP07a5jF49m0
+     N59CpdYvy/yUiJ0n0Q7obbT6KzL+np4yZqG9wvpqRDjJxo9QMB7C+Yg+/NHmmaNg
+     QPr1gpkHRdWSlWnHyXDbo/oKO9JbSQoXIDzfgRcvh/orJ3txUWG4/Ah5GXyowFf0
+     eGPsEB823NlqP5ek1dUs4poWYeeuBz0UP32MIyGGb/Jln7dYBG/vjEdwgu1j9zwp
+     eM5zHowMlaT2ssswwA6zIYh9ve9uzZK5i0utPtY3mPiWigoSjC5FMqkTEFI0iydt
+     swIDAQAB
+     -----END PUBLIC KEY-----
+   #+END_EXAMPLE
+   CLOCK: [2017-02-22 Wed 23:48]--[2017-02-23 Thu 00:01] =>  0:13
+   CLOCK: [2017-02-22 Wed 20:46]--[2017-02-22 Wed 21:00] =>  0:14
+   http://stackoverflow.com/q/18039401
+   https://www.ietf.org/rfc/rfc4870.txt
+** DONE Upload code to private GitHub repo
+   CLOCK: [2017-02-26 Sun 02:35]--[2017-02-26 Sun 02:42] =>  0:07
+** DONE Upload to PyPi
+   Upload to GitHub too
+   CLOCK: [2017-02-27 Mon 22:28]--[2017-02-27 Mon 22:39] =>  0:11
+   Great tutorial!
+   http://peterdowns.com/posts/first-time-with-pypi.html
+   CLOCK: [2017-02-27 Mon 21:40]--[2017-02-27 Mon 22:28] =>  0:48
+** DONE Figure out use cases
+   CLOCK: [2017-02-20 Mon 00:38]--[2017-02-20 Mon 00:45] =>  0:07
+   - Turn Keybase key into S/MIME certificate sounds like the first one?
+   - Give your keybase friend access to your SSH server
+   - Send an encrypted email to the owner of an HTTPS service
+   - Turn your friend's keybase key into a GPG key for their email address
+*** Send an encrypted email to:
+    - Your keybase friend
+    - The owner of an HTTPS website
+    - The owner of an email domain secured with DKIM keys
+    - Your friend on GitHub
+*** Give SSH access to
+    - Your keybase friend
+    - Your friend with a PGP key
+*** Provide a secure website that can only be accessed by
+    - Your keybase friend
+    - Your friend on GitHub
+    - Someone in your PGP web of trust
+** DONE X509 "-text" output
+   CLOCK: [2017-02-12 Sun 23:53]--[2017-02-12 Sun 23:55] =>  0:02
+   Briefly look for a parser.
+
+   It doesn't look like there is a name for the output format below, should be easy to parse though!
+
+   CLOCK: [2017-02-12 Sun 23:47]--[2017-02-12 Sun 23:53] =>  0:06
+   - See "Example" below
+   - Surely there is a parser for this already?
+*** Example
+    #+BEGIN_SRC sh
+    cat test_keys/generated-x509 | openssl x509 -text
+    #+END_SRC
+
+    #+BEGIN_EXAMPLE
+      Certificate:
+          Data:
+              Version: 3 (0x2)
+              Serial Number: 1 (0x1)
+              Signature Algorithm: sha256WithRSAEncryption
+              Issuer: C=US, ST=CA, L=San Francisco, O=My Company, CN=mysite.com
+              Validity
+                  Not Before: Aug 29 00:00:00 1997 GMT
+                  Not After : Sep  8 00:00:00 1997 GMT
+              Subject: C=US, ST=CA, L=San Francisco, O=My Company, CN=mysite.com
+              Subject Public Key Info:
+                  Public Key Algorithm: rsaEncryption
+                  RSA Public Key: (1024 bit)
+                      Modulus (1024 bit):
+                          00:b4:fe:28:03:b7:7d:2d:94:ab:50:92:5f:5f:e5:
+                          99:45:af:7b:b7:89:33:cd:b4:56:f4:d1:33:af:10:
+                          75:46:48:08:6e:a6:01:7b:04:80:98:31:30:ff:f4:
+                          53:41:39:71:6f:c4:99:8c:47:71:bd:2f:23:7c:91:
+                          92:b8:10:94:7b:6c:b3:fa:78:0a:08:bc:15:e9:48:
+                          eb:45:9b:67:8b:97:a2:e3:1c:b2:b3:69:b7:87:63:
+                          06:71:08:10:ab:4f:53:59:28:7a:44:47:58:c8:e4:
+                          27:fc:17:20:41:d7:99:8c:c9:17:b3:86:59:15:27:
+                          cd:73:5d:1d:12:89:9c:77:4f
+                      Exponent: 65537 (0x10001)
+              X509v3 extensions:
+                  X509v3 Subject Alternative Name: 
+                      DNS:localhost
+          Signature Algorithm: sha256WithRSAEncryption
+              4b:db:38:11:c5:02:62:fb:04:59:e6:00:24:78:22:4e:e3:3e:
+              9a:47:41:b5:9b:84:9e:94:44:83:5b:a2:75:25:80:95:88:77:
+              ca:d2:6a:23:af:fc:2d:cb:17:fc:05:74:5b:82:d7:89:86:20:
+              96:84:da:2d:3a:54:ae:a2:59:10:f8:cd:ed:7c:cd:fc:75:21:
+              52:07:a7:c2:6a:fb:da:9e:9b:e6:c2:69:0d:96:97:67:0a:a2:
+              55:80:6c:21:b6:95:76:48:8a:9a:f1:89:d9:70:0e:42:ca:cf:
+              f7:b0:6a:53:1b:05:d3:9e:98:8c:fa:e7:95:78:7d:00:0c:f2:
+              b8:00:85:e0:62:94:48:df:f1:c6:32:1f:a8:54:9d:bc:17:59:
+              05:a8:20:c4:87:d5:2e:5f:42:f6:9f:ce:dc:b0:91:34:70:89:
+              36:2c:ba:50:3f:62:47:6f:e7:68:5f:40:96:8c:fc:6a:36:eb:
+              31:94:2b:51:fc:ff:e3:a0:bd:cf:19:d0:88:65:7e:c2:36:2d:
+              88:bd:1d:c3:33:d5:ed:6b:bb:d7:ec:e1:8b:83:e7:33:13:21:
+              a8:73:84:b4:a5:ee:ce:ba:69:82:5c:5b:7c:8a:69:9e:4b:98:
+              3f:56:99:93:be:61:52:b7:73:40:9f:44:56:9a:c8:0c:51:19:
+              c2:c0:81:e4
+      -----BEGIN CERTIFICATE-----
+      MIICxzCCAa+gAwIBAgIBATANBgkqhkiG9w0BAQsFADBcMQswCQYDVQQGEwJVUzEL
+      MAkGA1UECAwCQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xEzARBgNVBAoMCk15
+      IENvbXBhbnkxEzARBgNVBAMMCm15c2l0ZS5jb20wHhcNOTcwODI5MDAwMDAwWhcN
+      OTcwOTA4MDAwMDAwWjBcMQswCQYDVQQGEwJVUzELMAkGA1UECAwCQ0ExFjAUBgNV
+      BAcMDVNhbiBGcmFuY2lzY28xEzARBgNVBAoMCk15IENvbXBhbnkxEzARBgNVBAMM
+      Cm15c2l0ZS5jb20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALT+KAO3fS2U
+      q1CSX1/lmUWve7eJM820VvTRM68QdUZICG6mAXsEgJgxMP/0U0E5cW/EmYxHcb0v
+      I3yRkrgQlHtss/p4Cgi8FelI60WbZ4uXouMcsrNpt4djBnEIEKtPU1koekRHWMjk
+      J/wXIEHXmYzJF7OGWRUnzXNdHRKJnHdPAgMBAAGjGDAWMBQGA1UdEQQNMAuCCWxv
+      Y2FsaG9zdDANBgkqhkiG9w0BAQsFAAOCAQEAS9s4EcUCYvsEWeYAJHgiTuM+mkdB
+      tZuEnpREg1uidSWAlYh3ytJqI6/8LcsX/AV0W4LXiYYgloTaLTpUrqJZEPjN7XzN
+      /HUhUgenwmr72p6b5sJpDZaXZwqiVYBsIbaVdkiKmvGJ2XAOQsrP97BqUxsF056Y
+      jPrnlXh9AAzyuACF4GKUSN/xxjIfqFSdvBdZBaggxIfVLl9C9p/O3LCRNHCJNiy6
+      UD9iR2/naF9Aloz8ajbrMZQrUfz/46C9zxnQiGV+wjYtiL0dwzPV7Wu71+zhi4Pn
+      MxMhqHOEtKXuzrppglxbfIppnkuYP1aZk75hUrdzQJ9EVprIDFEZwsCB5A==
+      -----END CERTIFICATE-----
+    #+END_EXAMPLE
+** Come up with criteria for public release
+   CLOCK: [2017-02-27 Mon 23:56]--[2017-02-28 Tue 00:03] =>  0:07
+** v0.5.0 "public"
+*** Add support for private keys
+    Lets look at what formats cryptography.io supports, looks like it supports:
+    - PEM
+    - DER
+    https://cryptography.io/en/latest/_modules/cryptography/hazmat/primitives/serialization/
+    CLOCK: [2017-02-24 Fri 23:56]--[2017-02-24 Fri 23:58] =>  0:02
+    Though they look the same (PEM formatted) x509 private keys are different from PGP private keys
+    However, SSH private keys seem to be the same as x509 private keys:
+
+    OpenSSH key:
+    #+BEGIN_EXAMPLE
+      $ cat tests/fixtures/id_rsa | openssl rsa -text
+    #+END_EXAMPLE
+
+    X.509 key:
+    #+BEGIN_EXAMPLE
+      $ cat tests/fixtures/key-b-openssl-key.pem | openssl rsa -text
+    #+END_EXAMPLE
+
+    PGP key:
+    #+BEGIN_EXAMPLE
+      $ cat tests/fixtures/key-c-gpg-private.key | pgpdump
+    #+END_EXAMPLE
+    
+    CLOCK: [2017-02-24 Fri 23:27]--[2017-02-24 Fri 23:52] =>  0:25
+**** TODO "to pem" (alias to: "openssh", "x509")
+**** TODO "to pgp"
+**** TODO "to jwk"
+*** Give the command line tool a nice experience
+    CLOCK: [2017-02-19 Sun 23:31]--[2017-02-20 Mon 00:38] =>  1:07
+    - Stub out features I want, but don't have yet
+**** Add "fetch" command group
+**** DONE Implement "to" command as a command group
+**** Allow command line flags for defining fields for x509 certs, PGP keys, openssl keys
+*** Handle error messages for common/expected scenarios
+**** fetch
+     - timeout
+     - unable to reach server
+     - no key found on server
+**** to
+     - no x509 CA cert
+     - figure out why =to jwt= isn't working
+     -
+*** TODO Verify that all private keys in repo are test keys
+*** TODO Add debug option to show what input key was detected as
+*** TODO Add help text for blank =lokey= command
+    with examples
 *** DONE Add better error handling for cli
     CLOCK: [2017-02-18 Sat 23:08]--[2017-02-18 Sat 23:24] =>  0:16
     - I added FIXME comments in code
@@ -574,18 +743,126 @@
 
     Next step:
     - I think I'll use libmagic wrapper until I can port one of the above ... if it matters
-*** TODO Add debug option to show what input key was detected as
 *** TODO Make a "Lokey" class
     - Will have: 
       - LokeyRSAPublicNumbers
       - LokeyRSAPrivateNumbers
-      - etc
     - Move load() to "Lokey" class
+*** DONE Play with Click, how hard to get sub-sub-commands?
+    CLOCK: [2017-02-19 Sun 00:50]--[2017-02-19 Sun 00:55] =>  0:05
+
+    SO EASY!
+
+    #+BEGIN_SRC python
+      @cli.group()
+      @click.pass_context
+      def fetch(ctx):
+          """Fetch key from place"""
+          pass
+
+      @fetch.command()
+      @click.pass_context
+      def keybase(ctx):
+          """Fetch from keybase"""
+          print "KEYBASE"
+    #+END_SRC
+*** DONE stdin with "peek"
+    - estimate effort to implement STDIN reader with "readback"
+    - I should just =read()= enough to peek, if good, then =read()= max bytes in
+      and put into StringIO
+    - nevermind ... this was easy
+** v1.0.0
+*** Add test fixtures
+    CLOCK: [2017-02-20 Mon 22:42]--[2017-02-20 Mon 22:55] =>  0:13
+**** JWK
+     - [ ] RSA keypair
+**** X.509
+     - [ ] CA keypair
+     - [ ] RSA HTTPS pair
+     - [ ] RSA S/MIME pair
+     - [ ] RSA HTTPS CSR
+     - [ ] HTTPS key for example.com
+     - [ ] HTTPS key for example.net
+     - [ ] HTTPS key for example.org
+     - [ ] HTTPS key for keybase.io
+     - [ ] HTTPS key for google.com
+     - [ ] HTTPS key for bing.com
+     - [ ] HTTPS key for duckduckgo.com
+**** PGP
+     - [ ] GPG rsa keypair
+     - [ ] GPG ec keypair
+     - [ ] Public key from keybase
+**** openssh
+     - [ ] rsa keypair
+     - [ ] dsa keypair
+     - [ ] ec keypair
+     - [ ] public key from GitHub
+*** Write automated tests for use cases
+    CLOCK: [2017-02-20 Mon 22:55]--[2017-02-20 Mon 23:01] =>  0:06
+**** Send/Receive S/MIME encrypted mail
+     CLOCK: [2017-02-24 Sat 23:58]--[2017-02-25 Sat 00:05] =>  0:07
+     CLOCK: [2017-02-21 Tue 23:30]--[2017-02-21 Tue 23:40] =>  0:10
+     https://www.madboa.com/geek/openssl/
+
+     #+BEGIN_SRC sh
+     openssl smime -encrypt -des3 -in my-message.txt tests/fixtures/key-b-openssl-cert.pem > message-for-key-b
+     #+END_SRC
+
+     Decrypt with:
+     #+BEGIN_SRC sh
+     openssl smime -decrypt -in message-for-key-b -passin pass:12345678 -inkey tests/fixtures/key-b-openssl-key.pem 
+     #+END_SRC
+
+     Lots of good stuff in this answer:
+     https://security.stackexchange.com/a/45294
+
+**** Send/Receive S/MIME signed mail
+**** Send/Receive GPG encrypted email
+     Here is the answer:
+     #+BEGIN_SRC sh
+       export GNUPGHOME=$(mktemp -d $HOME/.gnupgXXXXXX)
+     #+END_SRC
+     http://serverfault.com/a/528355
+
+     Here is how to script GPG:
+     http://stackoverflow.com/a/23785134
+
+     CLOCK: [2017-02-21 Tue 23:22]--[2017-02-21 Tue 23:30] =>  0:08
+     Super frustrating, seems like GPG puts secret keys in some shared keystore, wtf
+     CLOCK: [2017-02-21 Tue 23:11]--[2017-02-21 Tue 23:22] =>  0:11
+     CLOCK: [2017-02-20 Mon 23:16]--[2017-02-20 Mon 23:19] =>  0:03
+     https://www.gnupg.org/documentation/manuals/gnupg/GPG-Configuration-Options.html
+     =--keyring file=
+     Add file to the current list of keyrings. 
+     If file begins with a tilde and a slash, these are replaced by the $HOME directory. 
+     If the filename does not contain a slash, it is assumed to be in the GnuPG 
+     home directory ("~/.gnupg" if --homedir or $GNUPGHOME is not used).
+
+
+     Note that this adds a keyring to the current list. 
+     If the intent is to use the specified keyring alone, use =--keyring= along with =--no-default-keyring=.
+
+     If the the option =--no-keyring= has been used no keyrings will be used at all. 
+**** Send/Receive GPG signed email
+**** Log in to website with Client-Side SSL certificate
+**** Sign/Validate JWT with JWK
+**** SSH into host with your website key
+**** Verify that a web server is the same key as your friend's PGP key
+**** Verify that a ssh server is the same key as your friend's PGP key
+*** Implement visualizer for Public Key types
+    "Here is the data I got, here is the command to view more"
+    - Got
+      - e
+      - n
+      - metadata
+    - To learn more:
+      - | openssl x509 -text
+      - | pgpdump
 *** TODO openssl 
     - print useful stuff in comment if we have it
       - email if it's in the PGP input
       - email if its in the x509 input
-      - CN if email notin x509, etc
+      - CN if email not in x509, etc
 *** TODO x509
     - x509 certs should have reasonable default for serial number
       - unix time?
@@ -966,298 +1243,23 @@
      pgpdump
 *** Test keys:
     https://github.com/openssl/openssl/tree/master/test
-*** Play with Click, how hard to get sub-sub-commands?
-    CLOCK: [2017-02-19 Sun 00:50]--[2017-02-19 Sun 00:55] =>  0:05
-
-    SO EASY!
-
-    #+BEGIN_SRC python
-      @cli.group()
-      @click.pass_context
-      def fetch(ctx):
-          """Fetch key from place"""
-          pass
-
-      @fetch.command()
-      @click.pass_context
-      def keybase(ctx):
-          """Fetch from keybase"""
-          print "KEYBASE"
-    #+END_SRC
-*** DONE stdin with "peek"
-    - estimate effort to implement STDIN reader with "readback"
-    - I should just =read()= enough to peek, if good, then =read()= max bytes in
-      and put into StringIO
-    - nevermind ... this was easy
-** TODO Make list of what I need to do before I can launch "v1"
-   CLOCK: [2017-02-19 Sun 23:26]--[2017-02-19 Sun 23:31] =>  0:05
-   CLOCK: [2017-02-19 Sun 23:17]--[2017-02-19 Sun 23:26] =>  0:09
-   CLOCK: [2017-02-19 Sun 00:55]--[2017-02-19 Sun 01:03] =>  0:08
-** DONE Test JWK > PEM encoding with known good keys from Okta
-   - Going to call it "pem", this is what cryptography.io does (load_pem_public_key)
-   - Got it working!!
-   CLOCK: [2017-02-24 Fri 23:13]--[2017-02-24 Fri 23:27] =>  0:14
-   I don't know what to call a key that looks like this:
-   #+BEGIN_EXAMPLE
-     -----BEGIN PUBLIC KEY-----
-     MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgamsZfaSoeje3ychyFxv
-     SnVvwLetawpY70HsTpa11m/KvTMChFuD3ApLyRxrTS/iWApTnVTVqP07a5jF49m0
-     N59CpdYvy/yUiJ0n0Q7obbT6KzL+np4yZqG9wvpqRDjJxo9QMB7C+Yg+/NHmmaNg
-     QPr1gpkHRdWSlWnHyXDbo/oKO9JbSQoXIDzfgRcvh/orJ3txUWG4/Ah5GXyowFf0
-     eGPsEB823NlqP5ek1dUs4poWYeeuBz0UP32MIyGGb/Jln7dYBG/vjEdwgu1j9zwp
-     eM5zHowMlaT2ssswwA6zIYh9ve9uzZK5i0utPtY3mPiWigoSjC5FMqkTEFI0iydt
-     swIDAQAB
-     -----END PUBLIC KEY-----
-   #+END_EXAMPLE
-   CLOCK: [2017-02-22 Wed 23:48]--[2017-02-23 Thu 00:01] =>  0:13
-   CLOCK: [2017-02-22 Wed 20:46]--[2017-02-22 Wed 21:00] =>  0:14
-   http://stackoverflow.com/q/18039401
-   https://www.ietf.org/rfc/rfc4870.txt
-** DONE Upload code to private GitHub repo
-   CLOCK: [2017-02-26 Sun 02:35]--[2017-02-26 Sun 02:42] =>  0:07
-** DONE Upload to PyPi
-   CLOCK: [2017-02-27 Mon 21:40]--[2017-02-27 Mon 22:28] =>  0:48
-   Great tutorial!
-   http://peterdowns.com/posts/first-time-with-pypi.html
-** v1
-*** Add test fixtures
-    CLOCK: [2017-02-20 Mon 22:42]--[2017-02-20 Mon 22:55] =>  0:13
-**** JWK
-     - [ ] RSA keypair
-**** X.509
-     - [ ] CA keypair
-     - [ ] RSA HTTPS pair
-     - [ ] RSA S/MIME pair
-     - [ ] RSA HTTPS CSR
-     - [ ] HTTPS key for example.com
-     - [ ] HTTPS key for example.net
-     - [ ] HTTPS key for example.org
-     - [ ] HTTPS key for keybase.io
-     - [ ] HTTPS key for google.com
-     - [ ] HTTPS key for bing.com
-     - [ ] HTTPS key for duckduckgo.com
-**** PGP
-     - [ ] GPG rsa keypair
-     - [ ] GPG ec keypair
-     - [ ] Public key from keybase
-**** openssh
-     - [ ] rsa keypair
-     - [ ] dsa keypair
-     - [ ] ec keypair
-     - [ ] public key from GitHub
-*** Write automated tests for use cases
-    CLOCK: [2017-02-20 Mon 22:55]--[2017-02-20 Mon 23:01] =>  0:06
-**** Send/Receive S/MIME encrypted mail
-     CLOCK: [2017-02-24 Sat 23:58]--[2017-02-25 Sat 00:05] =>  0:07
-     CLOCK: [2017-02-21 Tue 23:30]--[2017-02-21 Tue 23:40] =>  0:10
-     https://www.madboa.com/geek/openssl/
-
-     #+BEGIN_SRC sh
-     openssl smime -encrypt -des3 -in my-message.txt tests/fixtures/key-b-openssl-cert.pem > message-for-key-b
-     #+END_SRC
-
-     Decrypt with:
-     #+BEGIN_SRC sh
-     openssl smime -decrypt -in message-for-key-b -passin pass:12345678 -inkey tests/fixtures/key-b-openssl-key.pem 
-     #+END_SRC
-
-     Lots of good stuff in this answer:
-     https://security.stackexchange.com/a/45294
-
-**** Send/Receive S/MIME signed mail
-**** Send/Receive GPG encrypted email
-     Here is the answer:
-     #+BEGIN_SRC sh
-       export GNUPGHOME=$(mktemp -d $HOME/.gnupgXXXXXX)
-     #+END_SRC
-     http://serverfault.com/a/528355
-
-     Here is how to script GPG:
-     http://stackoverflow.com/a/23785134
-
-     CLOCK: [2017-02-21 Tue 23:22]--[2017-02-21 Tue 23:30] =>  0:08
-     Super frustrating, seems like GPG puts secret keys in some shared keystore, wtf
-     CLOCK: [2017-02-21 Tue 23:11]--[2017-02-21 Tue 23:22] =>  0:11
-     CLOCK: [2017-02-20 Mon 23:16]--[2017-02-20 Mon 23:19] =>  0:03
-     https://www.gnupg.org/documentation/manuals/gnupg/GPG-Configuration-Options.html
-     =--keyring file=
-     Add file to the current list of keyrings. 
-     If file begins with a tilde and a slash, these are replaced by the $HOME directory. 
-     If the filename does not contain a slash, it is assumed to be in the GnuPG 
-     home directory ("~/.gnupg" if --homedir or $GNUPGHOME is not used).
-
-
-     Note that this adds a keyring to the current list. 
-     If the intent is to use the specified keyring alone, use =--keyring= along with =--no-default-keyring=.
-
-     If the the option =--no-keyring= has been used no keyrings will be used at all. 
-**** Send/Receive GPG signed email
-**** Log in to website with Client-Side SSL certificate
-**** Sign/Validate JWT with JWK
-**** SSH into host with your website key
-**** Verify that a web server is the same key as your friend's PGP key
-**** Verify that a ssh server is the same key as your friend's PGP key
-*** Better error messages
-*** Give the command line tool a nice experience
-    CLOCK: [2017-02-19 Sun 23:31]--[2017-02-20 Mon 00:38] =>  1:07
-    - Stub out features I want, but don't have yet
-**** Add "fetch" command group
-**** DONE Implement "to" command as a command group
-**** Allow command line flags for defining fields for x509 certs, PGP keys, openssl keys
-*** Add support for private keys
-    Lets look at what formats cryptography.io supports, looks like it supports:
-    - PEM
-    - DER
-    https://cryptography.io/en/latest/_modules/cryptography/hazmat/primitives/serialization/
-    CLOCK: [2017-02-24 Fri 23:56]--[2017-02-24 Fri 23:58] =>  0:02
-    Though they look the same (PEM formatted) x509 private keys are different from PGP private keys
-    However, SSH private keys seem to be the same as x509 private keys:
-
-    OpenSSH key:
-    #+BEGIN_EXAMPLE
-      $ cat tests/fixtures/id_rsa | openssl rsa -text
-    #+END_EXAMPLE
-
-    X.509 key:
-    #+BEGIN_EXAMPLE
-      $ cat tests/fixtures/key-b-openssl-key.pem | openssl rsa -text
-    #+END_EXAMPLE
-
-    PGP key:
-    #+BEGIN_EXAMPLE
-      $ cat tests/fixtures/key-c-gpg-private.key | pgpdump
-    #+END_EXAMPLE
-    
-    CLOCK: [2017-02-24 Fri 23:27]--[2017-02-24 Fri 23:52] =>  0:25
-**** "to pem" (alias to: "openssh", "x509")
-**** "to pgp"
-**** "to jwk"
-*** Implement visualizer for Public Key types
-    "Here is the data I got, here is the command to view more"
-    - Got
-      - e
-      - n
-      - metadata
-    - To learn more:
-      - | openssl x509 -text
-      - | pgpdump
-** v2
+** v1.1.0
 *** Convert "load()" to "detect_type()" and use libmagic for that
-*** Allow command line flags for defining fields for x509 certs, PGP keys, openssl keys
-*** Add support for private keys
-** v1 Launch checklist
-*** TODO Verify that all private keys in repo are test keys
-** TODO Figure out use cases
-   CLOCK: [2017-02-20 Mon 00:38]--[2017-02-20 Mon 00:45] =>  0:07
-   - Turn Keybase key into S/MIME certificate sounds like the first one?
-   - Give your keybase friend access to your SSH server
-   - Send an encrypted email to the owner of an HTTPS service
-   - Turn your friend's keybase key into a GPG key for their email address
-*** Send an encrypted email to:
-    - Your keybase friend
-    - The owner of an HTTPS website
-    - The owner of an email domain secured with DKIM keys
-    - Your friend on GitHub
-*** Give SSH access to
-    - Your keybase friend
-    - Your friend with a PGP key
-*** Provide a secure website that can only be accessed by
-    - Your keybase friend
-    - Your friend on GitHub
-    - Someone in your PGP web of trust
-** TODO X509 "-text" output
-   CLOCK: [2017-02-12 Sun 23:53]--[2017-02-12 Sun 23:55] =>  0:02
-   Briefly look for a parser.
-
-   It doesn't look like there is a name for the output format below, should be easy to parse though!
-
-   CLOCK: [2017-02-12 Sun 23:47]--[2017-02-12 Sun 23:53] =>  0:06
-   - See "Example" below
-   - Surely there is a parser for this already?
-*** Example
-    #+BEGIN_SRC sh
-    cat test_keys/generated-x509 | openssl x509 -text
-    #+END_SRC
-
-    #+BEGIN_EXAMPLE
-      Certificate:
-          Data:
-              Version: 3 (0x2)
-              Serial Number: 1 (0x1)
-              Signature Algorithm: sha256WithRSAEncryption
-              Issuer: C=US, ST=CA, L=San Francisco, O=My Company, CN=mysite.com
-              Validity
-                  Not Before: Aug 29 00:00:00 1997 GMT
-                  Not After : Sep  8 00:00:00 1997 GMT
-              Subject: C=US, ST=CA, L=San Francisco, O=My Company, CN=mysite.com
-              Subject Public Key Info:
-                  Public Key Algorithm: rsaEncryption
-                  RSA Public Key: (1024 bit)
-                      Modulus (1024 bit):
-                          00:b4:fe:28:03:b7:7d:2d:94:ab:50:92:5f:5f:e5:
-                          99:45:af:7b:b7:89:33:cd:b4:56:f4:d1:33:af:10:
-                          75:46:48:08:6e:a6:01:7b:04:80:98:31:30:ff:f4:
-                          53:41:39:71:6f:c4:99:8c:47:71:bd:2f:23:7c:91:
-                          92:b8:10:94:7b:6c:b3:fa:78:0a:08:bc:15:e9:48:
-                          eb:45:9b:67:8b:97:a2:e3:1c:b2:b3:69:b7:87:63:
-                          06:71:08:10:ab:4f:53:59:28:7a:44:47:58:c8:e4:
-                          27:fc:17:20:41:d7:99:8c:c9:17:b3:86:59:15:27:
-                          cd:73:5d:1d:12:89:9c:77:4f
-                      Exponent: 65537 (0x10001)
-              X509v3 extensions:
-                  X509v3 Subject Alternative Name: 
-                      DNS:localhost
-          Signature Algorithm: sha256WithRSAEncryption
-              4b:db:38:11:c5:02:62:fb:04:59:e6:00:24:78:22:4e:e3:3e:
-              9a:47:41:b5:9b:84:9e:94:44:83:5b:a2:75:25:80:95:88:77:
-              ca:d2:6a:23:af:fc:2d:cb:17:fc:05:74:5b:82:d7:89:86:20:
-              96:84:da:2d:3a:54:ae:a2:59:10:f8:cd:ed:7c:cd:fc:75:21:
-              52:07:a7:c2:6a:fb:da:9e:9b:e6:c2:69:0d:96:97:67:0a:a2:
-              55:80:6c:21:b6:95:76:48:8a:9a:f1:89:d9:70:0e:42:ca:cf:
-              f7:b0:6a:53:1b:05:d3:9e:98:8c:fa:e7:95:78:7d:00:0c:f2:
-              b8:00:85:e0:62:94:48:df:f1:c6:32:1f:a8:54:9d:bc:17:59:
-              05:a8:20:c4:87:d5:2e:5f:42:f6:9f:ce:dc:b0:91:34:70:89:
-              36:2c:ba:50:3f:62:47:6f:e7:68:5f:40:96:8c:fc:6a:36:eb:
-              31:94:2b:51:fc:ff:e3:a0:bd:cf:19:d0:88:65:7e:c2:36:2d:
-              88:bd:1d:c3:33:d5:ed:6b:bb:d7:ec:e1:8b:83:e7:33:13:21:
-              a8:73:84:b4:a5:ee:ce:ba:69:82:5c:5b:7c:8a:69:9e:4b:98:
-              3f:56:99:93:be:61:52:b7:73:40:9f:44:56:9a:c8:0c:51:19:
-              c2:c0:81:e4
-      -----BEGIN CERTIFICATE-----
-      MIICxzCCAa+gAwIBAgIBATANBgkqhkiG9w0BAQsFADBcMQswCQYDVQQGEwJVUzEL
-      MAkGA1UECAwCQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xEzARBgNVBAoMCk15
-      IENvbXBhbnkxEzARBgNVBAMMCm15c2l0ZS5jb20wHhcNOTcwODI5MDAwMDAwWhcN
-      OTcwOTA4MDAwMDAwWjBcMQswCQYDVQQGEwJVUzELMAkGA1UECAwCQ0ExFjAUBgNV
-      BAcMDVNhbiBGcmFuY2lzY28xEzARBgNVBAoMCk15IENvbXBhbnkxEzARBgNVBAMM
-      Cm15c2l0ZS5jb20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALT+KAO3fS2U
-      q1CSX1/lmUWve7eJM820VvTRM68QdUZICG6mAXsEgJgxMP/0U0E5cW/EmYxHcb0v
-      I3yRkrgQlHtss/p4Cgi8FelI60WbZ4uXouMcsrNpt4djBnEIEKtPU1koekRHWMjk
-      J/wXIEHXmYzJF7OGWRUnzXNdHRKJnHdPAgMBAAGjGDAWMBQGA1UdEQQNMAuCCWxv
-      Y2FsaG9zdDANBgkqhkiG9w0BAQsFAAOCAQEAS9s4EcUCYvsEWeYAJHgiTuM+mkdB
-      tZuEnpREg1uidSWAlYh3ytJqI6/8LcsX/AV0W4LXiYYgloTaLTpUrqJZEPjN7XzN
-      /HUhUgenwmr72p6b5sJpDZaXZwqiVYBsIbaVdkiKmvGJ2XAOQsrP97BqUxsF056Y
-      jPrnlXh9AAzyuACF4GKUSN/xxjIfqFSdvBdZBaggxIfVLl9C9p/O3LCRNHCJNiy6
-      UD9iR2/naF9Aloz8ajbrMZQrUfz/46C9zxnQiGV+wjYtiL0dwzPV7Wu71+zhi4Pn
-      MxMhqHOEtKXuzrppglxbfIppnkuYP1aZk75hUrdzQJ9EVprIDFEZwsCB5A==
-      -----END CERTIFICATE-----
-    #+END_EXAMPLE
-** TODO pkcs12?
-** TODO SSH Certificate?
-** TODO DKIM?
-   - This is just SSH format, with text record wrapping
-   - Might add a DNS interface for import though! That would be rad.
-** TODO Putty?
-
-
-** Ideas:
-   - Create GitHub issues for unimplemented features, then refer to those issues in error messages
-     "We don't yet have support for private keys, vote for this feature here: http://example.com"
-   -
-
-** V2 features
-   - Support for inputs with multiple keys
+*** Support for inputs with multiple keys
+    - JWK
+    - PEM packages
+    - GPG keys with sub-keys, etc
+*** Support for key stores, like java key store, or mac keychain, or GPG keychain
+** vNext
+*** TODO Support for inputs with multiple keys
      - JWK
      - PEM packages
      - GPG keys with sub-keys, etc
-   - Support for private keys
-   - Support for key stores, like java key store, or mac keychain, or GPG keychain
+*** TODO key stores, like java key store, or mac keychain, or GPG keychain
+*** TODO pkcs12?
+*** TODO SSH Certificate?
+*** TODO DKIM?
+    - This is just SSH format, with text record wrapping
+    - Might add a DNS interface for import though! That would be rad.
+*** TODO Putty?
+
