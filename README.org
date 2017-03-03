@@ -670,14 +670,14 @@
 ** Come up with criteria for public release
    CLOCK: [2017-02-27 Mon 23:56]--[2017-02-28 Tue 00:03] =>  0:07
 ** v0.5.0 "public"
-*** Add support for private keys
+*** [6/6] Add support for private keys
     Lets look at what formats cryptography.io supports, looks like it supports:
     - PEM
     - DER
     https://cryptography.io/en/latest/_modules/cryptography/hazmat/primitives/serialization/
     CLOCK: [2017-02-24 Fri 23:56]--[2017-02-24 Fri 23:58] =>  0:02
-    Though they look the same (PEM formatted) x509 private keys are different from PGP private keys
-    However, SSH private keys seem to be the same as x509 private keys:
+    Though they look the same (PEM formatted) private keys are different from PGP private keys
+    However, SSH private keys seem to be the same as PEM private keys:
 
     OpenSSH key:
     #+BEGIN_EXAMPLE
@@ -695,28 +695,46 @@
     #+END_EXAMPLE
     
     CLOCK: [2017-02-24 Fri 23:27]--[2017-02-24 Fri 23:52] =>  0:25
-**** TODO "to pem" (alias to: "openssh", "x509")
-**** TODO "to pgp"
-**** TODO "to jwk"
-*** Give the command line tool a nice experience
+**** DONE "to pem" (alias to: "openssh", "x509")
+     I can't get the password protected version of this code working?
+
+     No clear way to force the IV here: https://github.com/pyca/cryptography/blob/3bab4e5e356409920e17e2a0aad1eec4f2135e6a/src/cryptography/hazmat/backends/openssl/backend.py#L1456-L1536
+     Here is how Cryptography tests this code: https://github.com/pyca/cryptography/blob/6012ccff0d709a80259f93a406eca5d133b40108/tests/hazmat/primitives/test_rsa.py#L2079-L2091
+     
+     CLOCK: [2017-03-01 Wed 22:37]--[2017-03-01 Wed 23:20] =>  0:43
+     CLOCK: [2017-03-01 Wed 22:09]--[2017-03-01 Wed 22:16] =>  0:07
+     CLOCK: [2017-03-01 Wed 21:38]--[2017-03-01 Wed 21:40] =>  0:02
+**** DONE "from pem" (alias to: "openssh", "x509")
+**** DONE "to pgp"
+     CLOCK: [2017-02-28 Tue 23:01]--[2017-03-01 Wed 00:02] =>  1:01
+**** DONE "from pgp"
+     CLOCK: [2017-03-01 Wed 21:40]--[2017-03-01 Wed 22:08] =>  0:28
+     CLOCK: [2017-02-28 Tue 22:21]--[2017-02-28 Tue 22:54] =>  0:33
+**** DONE "to jwk"
+     http://stackoverflow.com/questions/24093272/how-to-load-a-private-key-from-a-jwk-into-openssl
+     https://tools.ietf.org/html/draft-ietf-jose-json-web-algorithms-40#section-6.3.2
+     CLOCK: [2017-02-28 Tue 22:56]--[2017-02-28 Tue 23:01] =>  0:05
+**** DONE "from jwk"
+*** [1/3] Give the command line tool a nice experience
     CLOCK: [2017-02-19 Sun 23:31]--[2017-02-20 Mon 00:38] =>  1:07
     - Stub out features I want, but don't have yet
-**** Add "fetch" command group
+**** TODO Add "fetch" command group
+**** TODO Allow command line flags for defining fields for x509 certs, PGP keys, openssl keys
 **** DONE Implement "to" command as a command group
-**** Allow command line flags for defining fields for x509 certs, PGP keys, openssl keys
-*** Handle error messages for common/expected scenarios
-**** fetch
+*** [0/2] Handle error messages for common/expected scenarios
+**** TODO fetch
      - timeout
      - unable to reach server
      - no key found on server
-**** to
+**** TODO to
      - no x509 CA cert
      - figure out why =to jwt= isn't working
-     -
 *** TODO Verify that all private keys in repo are test keys
 *** TODO Add debug option to show what input key was detected as
+    - Maybe I should just do this if you pipe somethign in without a flag?
 *** TODO Add help text for blank =lokey= command
     with examples
+*** TODO Make into literate document
 *** DONE Add better error handling for cli
     CLOCK: [2017-02-18 Sat 23:08]--[2017-02-18 Sat 23:24] =>  0:16
     - I added FIXME comments in code
@@ -743,11 +761,15 @@
 
     Next step:
     - I think I'll use libmagic wrapper until I can port one of the above ... if it matters
-*** TODO Make a "Lokey" class
+*** DONE Improve the  "Eris" class
+    CLOCK: [2017-03-02 Thu 21:55]--[2017-03-03 Fri 00:12] =>  2:17
+    CLOCK: [2017-03-02 Thu 20:06]--[2017-03-02 Thu 20:38] =>  0:32
+    CLOCK: [2017-03-02 Thu 18:43]--[2017-03-02 Thu 19:06] =>  0:23
     - Will have: 
-      - LokeyRSAPublicNumbers
-      - LokeyRSAPrivateNumbers
-    - Move load() to "Lokey" class
+      - ErisPublic
+      - ErisPrivate
+    - Move load() to "Eris" namespace
+    - Use delegate pattern for "plugins"
 *** DONE Play with Click, how hard to get sub-sub-commands?
     CLOCK: [2017-02-19 Sun 00:50]--[2017-02-19 Sun 00:55] =>  0:05
 
@@ -1244,22 +1266,18 @@
 *** Test keys:
     https://github.com/openssl/openssl/tree/master/test
 ** v1.1.0
-*** Convert "load()" to "detect_type()" and use libmagic for that
-*** Support for inputs with multiple keys
-    - JWK
+*** Convert "load()" to use libmagic?
+*** Support for inputs with multiple sub-keys or bundles of keys
+    - JWK arrays
     - PEM packages
     - GPG keys with sub-keys, etc
 *** Support for key stores, like java key store, or mac keychain, or GPG keychain
 ** vNext
-*** TODO Support for inputs with multiple keys
-     - JWK
-     - PEM packages
-     - GPG keys with sub-keys, etc
-*** TODO key stores, like java key store, or mac keychain, or GPG keychain
-*** TODO pkcs12?
-*** TODO SSH Certificate?
-*** TODO DKIM?
-    - This is just SSH format, with text record wrapping
-    - Might add a DNS interface for import though! That would be rad.
-*** TODO Putty?
+*** Add support for other key formats
+**** TODO pkcs12?
+**** TODO SSH Certificate?
+**** TODO DKIM?
+     - This is just SSH format, with text record wrapping
+     - Might add a DNS interface for import though! That would be rad.
+**** TODO Putty?
 
