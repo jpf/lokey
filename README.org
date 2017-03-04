@@ -53,13 +53,13 @@
    lokey fetch github
    lokey fetch pgp
    lokey fetch ssl
-   lokey as pem
-   lokey as x509
-   lokey as jwt
-   lokey as pgp
-   lokey as gpg
-   lokey as openssh
-   lokey as ssh
+   lokey to pem
+   lokey to x509
+   lokey to jwt
+   lokey to pgp
+   lokey to gpg
+   lokey to openssh
+   lokey to ssh
    lokey print
    lokey dump, print, display, show, read, info
    #+end_example
@@ -540,7 +540,7 @@
     similar are likely managing their DKIM keys.
 *** Launchpad
     https://pypi.python.org/pypi/ssh-import-id/5.6
-** TODO Make list of what I need to do before I can launch "v1"
+** DONE Make list of what I need to do before I can launch "v1"
    CLOCK: [2017-02-28 Tue 00:07]--[2017-02-28 Tue 00:11] =>  0:04
    CLOCK: [2017-02-19 Sun 23:26]--[2017-02-19 Sun 23:31] =>  0:05
    CLOCK: [2017-02-19 Sun 23:17]--[2017-02-19 Sun 23:26] =>  0:09
@@ -669,7 +669,51 @@
     #+END_EXAMPLE
 ** Come up with criteria for public release
    CLOCK: [2017-02-27 Mon 23:56]--[2017-02-28 Tue 00:03] =>  0:07
-** v0.5.0 "public"
+** v0.4.0 "pip only, for gliderlabs"
+*** [3/3] Give the command line tool a nice experience
+    CLOCK: [2017-02-19 Sun 23:31]--[2017-02-20 Mon 00:38] =>  1:07
+    - Stub out features I want, but don't have yet
+**** DONE Add "fetch keybase" command
+     CLOCK: [2017-03-04 Sat 09:39]--[2017-03-04 Sat 09:56] =>  0:17
+     https://keybase.io/docs/api/1.0/call/user/lookup
+     #+BEGIN_EXAMPLE
+     lokey fetch keybase github:jpf
+     lokey fetch keybase jfranusic
+     #+END_EXAMPLE
+**** DONE Allow command line flags for defining fields for
+***** DONE openssl keys
+      CLOCK: [2017-03-03 Fri 22:40]--[2017-03-03 Fri 22:48] =>  0:08
+***** DONE PGP keys
+      CLOCK: [2017-03-03 Fri 22:48]--[2017-03-03 Fri 22:56] =>  0:08
+***** DONE x509 certs
+      CLOCK: [2017-03-03 Fri 22:56]--[2017-03-03 Fri 23:12] =>  0:16
+**** DONE Implement "to" command as a command group
+*** [2/2] Handle error messages for common/expected scenarios
+**** DONE fetch
+     CLOCK: [2017-03-04 Sat 11:06]--[2017-03-04 Sat 11:17] =>  0:11
+     CLOCK: [2017-03-04 Sat 10:17]--[2017-03-04 Sat 10:40] =>  0:23
+     - timeout
+     - unable to reach server
+     - no key found on server
+**** DONE to
+     CLOCK: [2017-03-04 Sat 11:17]--[2017-03-04 Sat 11:23] =>  0:06
+     - no x509 CA cert
+*** DONE Figure out why =to jwt= isn't working
+    ... Somehow PyJWT just didn't want to work, so I changed to doing manual JWT decoding
+    CLOCK: [2017-03-04 Sat 13:52]--[2017-03-04 Sat 14:03] =>  0:11
+    CLOCK: [2017-03-04 Sat 13:15]--[2017-03-04 Sat 13:50] =>  0:35
+    CLOCK: [2017-03-04 Sat 12:31]--[2017-03-04 Sat 12:46] =>  0:15
+    CLOCK: [2017-03-04 Sat 12:21]--[2017-03-04 Sat 12:22] =>  0:01
+    CLOCK: [2017-03-04 Sat 11:47]--[2017-03-04 Sat 12:17] =>  0:30
+*** DONE Add help text
+    CLOCK: [2017-03-04 Sat 14:04]--[2017-03-04 Sat 14:12] =>  0:08
+    CLOCK: [2017-03-04 Sat 11:23]--[2017-03-04 Sat 11:46] =>  0:23
+    CLOCK: [2017-03-04 Sat 09:56]--[2017-03-04 Sat 10:17] =>  0:21
+    - add examples
+    -  for blank =lokey= command with examples
+*** Misc cleanup
+    CLOCK: [2017-03-04 Sat 00:18]--[2017-03-04 Sat 01:37] =>  1:19
+    CLOCK: [2017-03-03 Fri 22:29]--[2017-03-03 Fri 22:40] =>  0:11
 *** [6/6] Add support for private keys
     Lets look at what formats cryptography.io supports, looks like it supports:
     - PEM
@@ -715,26 +759,10 @@
      https://tools.ietf.org/html/draft-ietf-jose-json-web-algorithms-40#section-6.3.2
      CLOCK: [2017-02-28 Tue 22:56]--[2017-02-28 Tue 23:01] =>  0:05
 **** DONE "from jwk"
-*** [1/3] Give the command line tool a nice experience
-    CLOCK: [2017-02-19 Sun 23:31]--[2017-02-20 Mon 00:38] =>  1:07
-    - Stub out features I want, but don't have yet
-**** TODO Add "fetch" command group
-**** TODO Allow command line flags for defining fields for x509 certs, PGP keys, openssl keys
-**** DONE Implement "to" command as a command group
-*** [0/2] Handle error messages for common/expected scenarios
-**** TODO fetch
-     - timeout
-     - unable to reach server
-     - no key found on server
-**** TODO to
-     - no x509 CA cert
-     - figure out why =to jwt= isn't working
-*** TODO Verify that all private keys in repo are test keys
-*** TODO Add debug option to show what input key was detected as
+*** DONE Update Eris code in Lokey
+    CLOCK: [2017-03-03 Fri 18:35]--[2017-03-03 Fri 19:05] =>  0:30
+*** DONE Add debug option to show what input key was detected as
     - Maybe I should just do this if you pipe somethign in without a flag?
-*** TODO Add help text for blank =lokey= command
-    with examples
-*** TODO Make into literate document
 *** DONE Add better error handling for cli
     CLOCK: [2017-02-18 Sat 23:08]--[2017-02-18 Sat 23:24] =>  0:16
     - I added FIXME comments in code
@@ -793,6 +821,16 @@
     - I should just =read()= enough to peek, if good, then =read()= max bytes in
       and put into StringIO
     - nevermind ... this was easy
+*** DONE Package and distribute
+    CLOCK: [2017-03-04 Sat 14:13]--[2017-03-04 Sat 14:22] =>  0:09
+
+    #+BEGIN_EXAMPLE
+    python setup.py sdist upload -r pypitest
+    python setup.py sdist upload -r pypi
+    #+END_EXAMPLE
+** v0.8.0 "public"
+*** TODO Verify that all private keys in repo are test keys
+*** TODO Make into literate document
 ** v1.0.0
 *** Add test fixtures
     CLOCK: [2017-02-20 Mon 22:42]--[2017-02-20 Mon 22:55] =>  0:13
@@ -822,6 +860,7 @@
 *** Write automated tests for use cases
     CLOCK: [2017-02-20 Mon 22:55]--[2017-02-20 Mon 23:01] =>  0:06
 **** Send/Receive S/MIME encrypted mail
+     CLOCK: [2017-03-03 Fri 23:13]--[2017-03-03 Fri 23:15] =>  0:02
      CLOCK: [2017-02-24 Sat 23:58]--[2017-02-25 Sat 00:05] =>  0:07
      CLOCK: [2017-02-21 Tue 23:30]--[2017-02-21 Tue 23:40] =>  0:10
      https://www.madboa.com/geek/openssl/
