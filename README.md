@@ -1,8 +1,8 @@
 # lokey
 
-lokey is a tool that makes it easer to work with an convert between cryptographic key formats.
+lokey is a tool that makes it easy to work with an convert between cryptographic key formats.
 
-Named after the shape shifting and mischief-making Trickster from Norse mythology, this tool serves to test the bounds of possiblities and order.
+Named after the shape shifting and mischief-making Trickster from Norse mythology, this tool serves to test the bounds of possibilities and order.
 
 ## Installing lokey
 
@@ -12,7 +12,7 @@ The fastest way to get lokey is to use [pip](https://en.wikipedia.org/wiki/Pip_(
 
 ## Using lokey
 
-lokey makes it easy to fetch cryptograpic keys from public sources like [Keybase](https://keybase.io/) and [PGP keyservers](https://en.wikipedia.org/wiki/Key_server_%28cryptographic%29), for example:
+lokey makes it easy to fetch cryptographic keys from public sources like [Keybase](https://keybase.io/) and [PGP keyservers](https://en.wikipedia.org/wiki/Key_server_%28cryptographic%29), for example:
 
 Fetch my Keybase key using [my Twitter handle](https://twitter.com/jf):
 
@@ -52,7 +52,7 @@ At the moment, lokey can convert RSA keys between the following
 formats: openssh, X.509  Certificates, PGP, and JWT.
 
 With lokey you can:
--   Use the public SSL certicate of a website to send an S/MIME
+-   Use the public SSL certificate of a website to send an S/MIME
     encrypted email to any website owner that uses TLS:
 -   Grant access to your a server by turning your friend's keybase key
     into an openssh key
