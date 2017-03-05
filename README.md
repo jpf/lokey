@@ -1,6 +1,6 @@
 # lokey
 
-lokey is a tool that makes it easy to work with an convert between cryptographic key formats.
+lokey is a tool that makes it easy to work with and convert between cryptographic key formats.
 
 Named after the shape shifting and mischief-making Trickster from Norse mythology, this tool serves to test the bounds of possibilities and order.
 
