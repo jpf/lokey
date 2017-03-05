@@ -862,11 +862,44 @@
     python setup.py sdist upload -r pypi
     #+END_EXAMPLE
 ** v0.8.0 "public"
+*** Fix issue with commands "hanging" forever
+    CLOCK: [2017-03-04 Sat 23:40]
+    Truth Table:
+    |-------+------------+------------------------------------------|
+    | STDIN | Subcommand | Expected Result                          |
+    |-------+------------+------------------------------------------|
+    | No    | No         | Help text printed with examples          |
+    | No    | "fetch"    | Key fetched                              |
+    | No    | "to"       | Help text printed for "to" subcommand    |
+    | Yes   | No         | Key information printed                  |
+    | Yes   | "to"       | Key converted                            |
+    | Yes   | "fetch"    | Help text printed for "fetch" subcommand |
+    |-------+------------+------------------------------------------|
+    
+    Simpler?
+    |-------+------------+---------------------------------|
+    | STDIN | Subcommand | Expected Result                 |
+    |-------+------------+---------------------------------|
+    | No    | No         | Help text printed with examples |
+    | No    | Yes        | Subcommand run                  |
+    | Yes   | No         | Key information printed         |
+    | Yes   | Yes        | Subcommand run                  |
+    |-------+------------+---------------------------------|
+
+    For variables in code:
+    |----------------------+------------+---------------------------------|
+    | interactive_terminal | subcommand | Expected Result                 |
+    |----------------------+------------+---------------------------------|
+    | True                 | None       | Help text printed with examples |
+    | True                 | ""         | Subcommand run                  |
+    | False                | None       | Key information printed         |
+    | False                | ""         | Subcommand run                  |
+    |----------------------+------------+---------------------------------|
 *** Write introduction
-    CLOCK: [2017-03-04 Sat 22:22]--[2017-03-04 Sat 23:32] =>  1:10
     CLOCK: [2017-02-26 Sun 14:28]--[2017-02-26 Sun 14:31] =>  0:03
     CLOCK: [2017-02-26 Sun 12:10]--[2017-02-26 Sun 12:40] =>  0:30
 *** TODO Write inspriation
+    CLOCK: [2017-03-04 Sat 22:22]--[2017-03-04 Sat 23:32] =>  1:10
     https://web.archive.org/web/20110828210530/http://vulnarb.com/
 *** TODO Verify that all private keys in repo are test keys
 *** TODO Make into literate document

@@ -17,7 +17,7 @@ class LokeyContext:
 
 
 @click.group(invoke_without_command=True)
-@click.version_option("0.4.2")
+@click.version_option("0.5.0")
 # FIXME: I'm not happy with the idea of passing a password on the command line,
 #        this needs to be fixed ASAP
 @click.option('--password',
@@ -29,8 +29,8 @@ def cli(ctx, password):
     if not hasattr(ctx.obj, 'key'):
         ctx.obj = LokeyContext()
     interactive_terminal = sys.__stdin__.isatty()
-    invoked_subcommand = ctx.invoked_subcommand
-    if interactive_terminal and not invoked_subcommand:
+    subcommand = ctx.invoked_subcommand
+    if interactive_terminal and not subcommand:
         print("\n".join([
             ctx.get_help(),
             "",
@@ -39,13 +39,13 @@ def cli(ctx, password):
             "  $ lokey fetch keybase twitter:jf",
             ""]))
         return
-    if invoked_subcommand and 'to' not in invoked_subcommand:
+    elif interactive_terminal and subcommand:
         return
     try:
         ctx.obj.key = eris.load(sys.stdin, password=password)
     except Exception as e:
         raise click.ClickException(str(e))
-    if not invoked_subcommand:
+    if not subcommand:
         print ctx.obj.key
 
 
