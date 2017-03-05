@@ -17,7 +17,7 @@ class LokeyContext:
 
 
 @click.group(invoke_without_command=True)
-@click.version_option("0.4.1")
+@click.version_option("0.4.2")
 # FIXME: I'm not happy with the idea of passing a password on the command line,
 #        this needs to be fixed ASAP
 @click.option('--password',
@@ -38,6 +38,8 @@ def cli(ctx, password):
             "  $ cat your-key | lokey to ssh",
             "  $ lokey fetch keybase twitter:jf",
             ""]))
+        return
+    if invoked_subcommand and 'to' not in invoked_subcommand:
         return
     try:
         ctx.obj.key = eris.load(sys.stdin, password=password)
