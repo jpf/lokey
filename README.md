@@ -26,7 +26,7 @@ You can see all of the fetching commands that lokey has by typing:
 
     $ lokey fetch
 
-lokey is also a tool for converting between cryptographic key formats, for example
+lokey is also a tool for converting between cryptographic key formats, for example:
 
 Make it easier to grant your friends access to your SSH server:
 
@@ -47,15 +47,6 @@ One of the administrators of the TLS secured webserver could read the message us
 lokey will also give you information about keys that you pipe into it:
 
     $ cat ~/.ssh/id_rsa.pub | lokey
-
-At the moment, lokey can convert RSA keys between the following
-formats: openssh, X.509  Certificates, PGP, and JWT.
-
-With lokey you can:
--   Use the public SSL certificate of a website to send an S/MIME
-    encrypted email to any website owner that uses TLS:
--   Grant access to your a server by turning your friend's keybase key
-    into an openssh key
 
 ## Inspiration
 
