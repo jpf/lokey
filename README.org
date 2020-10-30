@@ -83,13 +83,12 @@
 
 ** Inspiration
 
-   Many things inspired this project. 
    The genesis of this project comes from the many conversations I had with my dad about his implementation of [[https://github.com/pfranusic/BlackLight][OpenPGP in Common Lisp]].
-   One of those conversations was when I first learned that all RSA keys derived from the numbers ("e", "n", "d").
-   My dad's paper "[[https://github.com/pfranusic/why-RSA-works/blob/master/why-RSA-works.pdf][Why RSA Works]]", gave me the grounding I needed to reason and understand RSA cryptography.
+   One of those conversations was when I first learned that all RSA keys share the same set of numbers ("e", "n", "d").
+   My dad's paper "[[https://github.com/pfranusic/why-RSA-works/blob/master/why-RSA-works.pdf][Why RSA Works]]" also gave me the grounding I needed to reason about and understand RSA cryptography.
 
    Other inspirations include [[https://web.archive.org/web/20110828210530/http://vulnarb.com/][Zed Shaw's vulnarb.com]] project, which was the first time I considered using TLS certificates for encrypting email.
-   [[http://web.monkeysphere.info/][The Monkeysphere Project]] which inspired me to think of using the PGP [[https://en.wikipedia.org/wiki/Web_of_trust][web of trust]] for something other than email.  
+   [[http://web.monkeysphere.info/][The Monkeysphere Project]] which inspired me to think of using the PGP [[https://en.wikipedia.org/wiki/Web_of_trust][web of trust]] for things other than email.
 
    My work at Okta on [[https://github.com/okta/okta-openvpn/blob/a8868879cd74db1737a13fe34c68aa5ac20f5ebe/okta_openvpn.py#L66-L94][key pinning]] introduced me to Python's outstanding cryptographic library "[[https://cryptography.io/en/latest/][cryptography]]". 
    And most recently, my work on [[https://github.com/jpf/okta-jwks-to-pem][converting JWK formatted keys to PEM formatted keys]] proved how useful a command line utility for key conversion could be.
@@ -899,7 +898,7 @@
     python setup.py sdist upload -r pypi
     #+END_EXAMPLE
 ** v0.8.0 "public"
-*** Fix issue with commands "hanging" forever
+*** DONE Fix issue with commands "hanging" forever
     CLOCK: [2017-03-04 Sat 23:40]--[2017-03-05 Sun 00:01] =>  0:21
     Truth Table:
     |-------+------------+------------------------------------------|
@@ -933,12 +932,15 @@
     | False                | ""         | Subcommand run                  |
     |----------------------+------------+---------------------------------|
 
-*** Update README with "What's missing"
+*** DONE Update README with "What's missing"
     CLOCK: [2017-03-05 Sun 00:10]--[2017-03-05 Sun 00:26] =>  0:16
 *** Write introduction
     CLOCK: [2017-02-26 Sun 14:28]--[2017-02-26 Sun 14:31] =>  0:03
     CLOCK: [2017-02-26 Sun 12:10]--[2017-02-26 Sun 12:40] =>  0:30
-*** TODO Write inspriation
+*** Write "Credits" section
+    Glider labs folks, Len, Jordan
+*** TODO Write inspiration
+    CLOCK: [2017-03-05 Sun 10:32]--[2017-03-05 Sun 10:54] =>  0:22
     CLOCK: [2017-03-04 Sat 22:22]--[2017-03-04 Sat 23:32] =>  1:10
     https://web.archive.org/web/20110828210530/http://vulnarb.com/
 *** TODO Verify that all private keys in repo are test keys
