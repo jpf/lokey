@@ -42,7 +42,7 @@ class CanTransmute(object):
             transmuter = self
             transmuter.__class__ = transmuters[obj]
             return transmuter.serialize(*args, **kwargs)
-        print "Did not find: " + obj
+        print("Did not find: " + obj)
 
     def handles(self, sample):
         return False
@@ -68,6 +68,8 @@ class CanTransmute(object):
 class ErisPublic(CanTransmute, rsa.RSAPublicNumbers):
     def __init__(self, e=None, n=None):
         self.key_type = 'Public'
+        self._e = None
+        self._n = None
         # Allow empty objects:
         if e and n:
             super(ErisPublic, self).__init__(e, n)
@@ -118,7 +120,7 @@ def long_to_base64(n):
     bys = long2intarr(n)
     data = struct.pack('%sB' % len(bys), *bys)
     if not len(data):
-        data = '\x00'
+        data = b''
     s = base64.urlsafe_b64encode(data).rstrip(b'=')
     return s.decode("ascii")
 
@@ -158,7 +160,7 @@ class SSHPublic(ErisPublic):
         value = (rsa_pub.public_bytes(
             encoding=serialization.Encoding.OpenSSH,
             format=serialization.PublicFormat.OpenSSH)
-        )
+        ).decode("utf-8")
         if comment:
             value += " " + comment
         return value
@@ -238,6 +240,7 @@ class X509Public(ErisPublic):
         return(msg)
 
     def deserialize(self, data):
+        data = bytes(data, "utf-8")
         cert = x509.load_pem_x509_certificate(data, default_backend())
         key_material = cert.public_key().public_numbers()
         self._e = key_material.e
@@ -493,10 +496,14 @@ def load(f, password=None):
     for transmuter in transmuters.values():
         if transmuter().handles(data):
             cls = transmuter()
+            break
     if password:
         cls.password = password
     if cls:
-        cls.deserialize(data)
+        try:
+            cls.deserialize(data)
+        except Exception as e:
+            print(str(e))
         return cls
     else:
         msg = ("Input is not recognized. "
