@@ -135,6 +135,14 @@
    
    See also, =FIXME= notes in the source as well as my planned work in =README.org=
 
+** Developing lokey
+
+It's useful to [[https://packaging.python.org/guides/distributing-packages-using-setuptools/#working-in-development-mode][work in development mode]] when making changes to Lokey:
+
+#+BEGIN_SRC shell
+pip install --editable .
+#+END_SRC
+*** ]
 
 * Work log 							   :noexport:
 ** Proof of Concept
@@ -640,7 +648,7 @@
     Upload to GitHub too
     CLOCK: [2017-02-27 Mon 22:28]--[2017-02-27 Mon 22:39] =>  0:11
     Great tutorial!
-    http://peterdowns.com/posts/first-time-with-pypi.html
+    https://web.archive.org/web/20170301004430/https://peterdowns.com/posts/first-time-with-pypi.html
     CLOCK: [2017-02-27 Mon 21:40]--[2017-02-27 Mon 22:28] =>  0:48
 *** DONE Figure out use cases
     CLOCK: [2017-02-20 Mon 00:38]--[2017-02-20 Mon 00:45] =>  0:07
@@ -939,6 +947,55 @@
     CLOCK: [2017-02-26 Sun 12:10]--[2017-02-26 Sun 12:40] =>  0:30
 *** Write "Credits" section
     Glider labs folks, Len, Jordan
+*** Write section on "Developing"
+:LOGBOOK:
+CLOCK: [2020-10-30 Fri 11:29]--[2020-10-30 Fri 11:48] =>  0:19
+:END:
+It's been so long that I forget how to do this!
+
+https://packaging.python.org/guides/distributing-packages-using-setuptools/#working-in-development-mode
+
+#+BEGIN_SRC shell
+pip install --editable .
+#+END_SRC
+*** TODO Work on getting lokey working with Python3
+:LOGBOOK:
+CLOCK: [2020-10-30 Fri 13:14]--[2020-10-30 Fri 13:29] =>  0:15
+CLOCK: [2020-10-30 Fri 11:48]--[2020-10-30 Fri 12:05] =>  0:17
+:END:
+#+BEGIN_SRC shell
+Traceback (most recent call last):
+  File "/Users/joel/Projects/lokey/venv/bin/lokey", line 33, in <module>
+    sys.exit(load_entry_point('lokey', 'console_scripts', 'lokey')())
+  File "/Users/joel/Projects/lokey/venv/bin/lokey", line 25, in importlib_load_entry_point
+    return next(matches).load()
+  File "/nix/store/vzp3vmnhfvgnsvm1pvmsz3x0wkjcj0cc-python3-3.8.5/lib/python3.8/importlib/metadata.py", line 77, in load
+    module = import_module(match.group('module'))
+  File "/nix/store/vzp3vmnhfvgnsvm1pvmsz3x0wkjcj0cc-python3-3.8.5/lib/python3.8/importlib/__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1014, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 991, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 975, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 671, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/Users/joel/Projects/lokey/lokey/__init__.py", line 16, in <module>
+    from hkp import KeyServer
+  File "/Users/joel/Projects/lokey/venv/lib/python3.8/site-packages/hkp/__init__.py", line 5, in <module>
+    from hkp.client import Key, Identity, KeyServer
+  File "/Users/joel/Projects/lokey/venv/lib/python3.8/site-packages/hkp/client.py", line 8, in <module>
+    import urllib2
+ModuleNotFoundError: No module named 'urllib2'
+#+END_SRC
+I "fixed" this by commeting out the hkp library :/
+
+Now I get an error when I try this:
+
+#+BEGIN_SRC shell
+$ cat gliderlabs.pem | lokey to ssh
+Error: from_buffer() cannot return the address of a unicode object
+#+END_SRC
+
 *** TODO Write inspiration
     CLOCK: [2017-03-05 Sun 10:32]--[2017-03-05 Sun 10:54] =>  0:22
     CLOCK: [2017-03-04 Sat 22:22]--[2017-03-04 Sat 23:32] =>  1:10
