@@ -46,7 +46,7 @@ def cli(ctx, password):
     except Exception as e:
         raise click.ClickException(str(e))
     if not subcommand:
-        print ctx.obj.key
+        print(ctx.obj.key)
 
 
 @cli.group()
