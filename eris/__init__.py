@@ -42,7 +42,7 @@ class CanTransmute(object):
             transmuter = self
             transmuter.__class__ = transmuters[obj]
             return transmuter.serialize(*args, **kwargs)
-        print "Did not find: " + obj
+        print("Did not find: " + obj)
 
     def handles(self, sample):
         return False
@@ -134,7 +134,7 @@ class JWKPublic(ErisPublic):
             'kty': 'RSA',
             'n': long_to_base64(self._n)}
         jwk_payload = json.dumps(json_payload)
-        return jwk_payload
+        return jwk_payload.decode()
 
     def deserialize(self, data):
         jwk = json.loads(data)
@@ -161,9 +161,10 @@ class SSHPublic(ErisPublic):
         )
         if comment:
             value += " " + comment
-        return value
+        return value.decode()
 
     def deserialize(self, data):
+        data = data.encode('utf-8')
         key = serialization.load_ssh_public_key(data, default_backend())
         self._e = key.public_numbers().e
         self._n = key.public_numbers().n
@@ -376,6 +377,7 @@ class PEMPrivate(ErisPrivate):
             encryption_algorithm=encryption_algorithm))
 
     def deserialize(self, data):
+        data = str.encode(data)
         rsa_priv = serialization.load_pem_private_key(
             data, self.password, default_backend()
         )

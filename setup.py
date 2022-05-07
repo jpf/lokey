@@ -3,7 +3,7 @@ from setuptools import find_packages
 setup(
     name = 'lokey',
     packages = find_packages(),
-    version = '0.5.0',
+    version = '0.8.1',
     description = 'A tool to convert between different cryptographic key formats',
     author = 'Joel Franusic',
     author_email = 'jfranusic@gmail.com',
