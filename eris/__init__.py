@@ -26,6 +26,8 @@ from pgpy.packet.packets import (
     PrivKeyV4)
 import pgpy
 
+import jks
+
 transmuters = {}
 
 
@@ -142,6 +144,7 @@ class JWKPublic(ErisPublic):
         self._n = base64_to_long(jwk['n'])
 
     def handles(self, sample):
+        sample = sample.decode('utf-8')
         if '{' in sample and '"' in sample:
             data = json.loads(sample)
             return ('e' in data) and ('n' in data) and ('d' not in data)
@@ -170,7 +173,29 @@ class SSHPublic(ErisPublic):
         self._n = key.public_numbers().n
 
     def handles(self, sample):
-        return sample.startswith('ssh-rsa ')
+        return sample.startswith(b'ssh-rsa ')
+
+
+@transmuter
+class OpenSSHPrivate(ErisPrivate):
+    '''Private Key in OpenSSH format'''
+    def __init__(self, *args, **kwargs):
+        super(OpenSSHPrivate, self).__init__(args, kwargs)
+
+    def deserialize(self, data):
+        password = None
+        key = serialization.load_ssh_private_key(data, password)
+        private_numbers = key.private_numbers()
+        self._d = private_numbers._d
+        self._p = private_numbers._p
+        self._q = private_numbers._q
+        self._iqmp = private_numbers._iqmp
+        self._dmp1 = private_numbers._dmp1
+        self._dmq1 = private_numbers._dmq1
+        self._public_numbers = private_numbers._public_numbers
+
+    def handles(self, sample):
+        return sample.startswith(b'-----BEGIN OPENSSH PRIVATE KEY')
 
 
 class SamplePublic(ErisPublic):
@@ -223,7 +248,7 @@ class PGPPublic(ErisPublic):
         self._n = key_material.n
 
     def handles(self, sample):
-        return sample.startswith('-----BEGIN PGP PUBLIC KEY BLOCK')
+        return sample.startswith(b'-----BEGIN PGP PUBLIC KEY BLOCK')
 
 
 @transmuter
@@ -245,7 +270,7 @@ class X509Public(ErisPublic):
         self._n = key_material.n
 
     def handles(self, sample):
-        return sample.startswith('-----BEGIN CERT')
+        return sample.startswith(b'-----BEGIN CERT')
 
 
 # SMIME: CN=First Last/emailAddress=first.last@example.com
@@ -305,7 +330,7 @@ class PEMPublic(ErisPublic):
         self._n = key.public_numbers().n
 
     def handles(self, sample):
-        return sample.startswith('-----BEGIN PUBLIC KEY')
+        return sample.startswith(b'-----BEGIN PUBLIC KEY')
 
 
 @transmuter
@@ -353,6 +378,7 @@ class JWKPrivate(ErisPrivate):
         self._public_numbers = ErisPublic(e=e, n=n)
 
     def handles(self, sample):
+        sample = sample.decode('utf-8')
         if '{' in sample and '"' in sample:
             data = json.loads(sample)
             return ('e' in data) and ('n' in data) and ('d' in data)
@@ -377,7 +403,7 @@ class PEMPrivate(ErisPrivate):
             encryption_algorithm=encryption_algorithm))
 
     def deserialize(self, data):
-        data = str.encode(data)
+        # data = str.encode(data)
         rsa_priv = serialization.load_pem_private_key(
             data, self.password, default_backend()
         )
@@ -391,17 +417,49 @@ class PEMPrivate(ErisPrivate):
         self._public_numbers = private_numbers._public_numbers
 
     def handles(self, sample):
-        return sample.startswith('-----BEGIN RSA PRIVATE KEY')
+        return sample.startswith(b'-----BEGIN RSA PRIVATE KEY')
 
 
 @transmuter
-class SSHPrivate(PEMPrivate):
-    '''Private Key in SSH (PEM) format'''
+class JavaKeyStorePrivate(ErisPrivate):
+    '''Private Key in Java Keystore (JKS) format'''
     def __init__(self, *args, **kwargs):
-        super(SSHPrivate, self).__init__(args, kwargs)
+        super(JavaKeyStorePrivate, self).__init__(args, kwargs)
+
+    def serialize(self):
+        pass
+
+    def deserialize(self, data):
+        ks = jks.KeyStore.loads(data, "password")
+        # if any of the keys in the store use a password that is not the same as the store password:
+        # ks.entries["key1"].decrypt("key_password")
+
+        keys = list(ks.private_keys.items())
+
+        if len(keys) == 0:
+            raise ValueError("No private keys found in JKS")
+        alias, private_key = keys[0]
+
+        if private_key.algorithm_oid != jks.util.RSA_ENCRYPTION_OID:
+            raise ValueError(
+                f"Unsupported JKS algorithm: {private_key.algorithm_oid}"
+            )
+
+        # print(f"Private key: {alias}")
+        rsa_priv = serialization.load_der_private_key(
+            private_key.pkey, self.password, default_backend()
+        )
+        private_numbers = rsa_priv.private_numbers()
+        self._d = private_numbers._d
+        self._p = private_numbers._p
+        self._q = private_numbers._q
+        self._iqmp = private_numbers._iqmp
+        self._dmp1 = private_numbers._dmp1
+        self._dmq1 = private_numbers._dmq1
+        self._public_numbers = private_numbers._public_numbers
 
     def handles(self, sample):
-        return False
+        return sample.startswith(b'\xfe\xed\xfe\xed')
 
 
 @transmuter
@@ -485,19 +543,25 @@ class PGPPrivate(ErisPrivate):
         return str(pgp_key)
 
     def handles(self, sample):
-        return sample.startswith('-----BEGIN PGP PRIVATE KEY BLOCK')
+        return sample.startswith(b'-----BEGIN PGP PRIVATE KEY BLOCK')
 
 
 def load(f, password=None):
     cls = None
     mebibyte_in_bytes = 1048576
-    data = f.read(mebibyte_in_bytes)
+    data = f.buffer.read(mebibyte_in_bytes)
     for transmuter in transmuters.values():
-        if transmuter().handles(data):
-            cls = transmuter()
+        # print(transmuter)
+        try:
+            if transmuter().handles(data):
+                cls = transmuter()
+        except:
+            # FIXME: Catch specific errors here
+            pass
     if password:
         cls.password = password
     if cls:
+        # print(f"Using cls: {cls}")
         cls.deserialize(data)
         return cls
     else:
