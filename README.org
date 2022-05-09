@@ -959,6 +959,15 @@ python setup.py develop
 #+END_SRC
 *** Get lokey working with Python3
 
+*** Write unit tests
+:LOGBOOK:
+CLOCK: [2022-05-09 Mon 08:54]--[2022-05-09 Mon 09:45] =>  0:51
+CLOCK: [2022-05-09 Mon 07:00]--[2022-05-09 Mon 08:00] =>  1:00
+:END:
+
+Did I ever have other unit tests? I skimmed my notes briefly and saw that I used to have fixtures???
+
+Yikes! I'm glad I'm writing these tests, I had a subtle bug in the code that converted numbers to a PGP private key!!
 ** v1.0.0
 *** Add test fixtures
     CLOCK: [2017-02-20 Mon 22:42]--[2017-02-20 Mon 22:55] =>  0:13
