@@ -1,6 +1,7 @@
 import unittest
 import eris
 from tests.shared import ExpectedRSANumbers
+from tests.shared import ExpectedKeystoreRSANumbers
 
 class TestEris(unittest.TestCase):
     def setUp(self):
@@ -61,18 +62,28 @@ class TestEris(unittest.TestCase):
         transmuter = eris.PEMPublic()
         self.assertHandlesPublicKey(transmuter)
 
-    # def test_PGPPublic(self):
-    #     self.assertTrue(False)
+    def test_JavaKeyStorePrivate(self):
+        self.read_key("rsa_1024_keystore.jks")
+        transmuter = eris.JavaKeyStorePrivate()
+        self.expected = ExpectedKeystoreRSANumbers()
+        self.assertHandlesPrivateKey(transmuter)
 
-    # def test_PGPPrivate(self):
-    #     self.assertTrue(False)
+    def test_PGPPublic(self):
+        self.read_key("rsa_1024_public.pgp")
+        transmuter = eris.PGPPublic()
+        self.assertHandlesPublicKey(transmuter)
 
-    # def test_X509Public(self):
-    #     self.assertTrue(False)
+    def test_PGPPrivate(self):
+        self.read_key("rsa_1024_private.pgp")
+        transmuter = eris.PGPPrivate()
+        transmuter.password = "password"
+        self.assertHandlesPrivateKey(transmuter)
 
-    # def test_CSRPrivate(self):
-    #     self.assertTrue(False)
+    @unittest.skip
+    def test_X509Public(self):
+        self.assertTrue(False)
 
-    # def test_JavaKeyStorePrivate(self):
-    #     self.assertTrue(False)
+    @unittest.skip
+    def test_CSRPrivate(self):
+        self.assertTrue(False)
 

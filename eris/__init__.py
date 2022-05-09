@@ -136,7 +136,7 @@ class JWKPublic(ErisPublic):
             'kty': 'RSA',
             'n': long_to_base64(self._n)}
         jwk_payload = json.dumps(json_payload)
-        return jwk_payload.decode()
+        return jwk_payload
 
     def deserialize(self, data):
         jwk = json.loads(data)
@@ -167,7 +167,6 @@ class SSHPublic(ErisPublic):
         return value.decode()
 
     def deserialize(self, data):
-        data = data.encode('utf-8')
         key = serialization.load_ssh_public_key(data, default_backend())
         self._e = key.public_numbers().e
         self._n = key.public_numbers().n
@@ -318,11 +317,11 @@ class PEMPublic(ErisPublic):
 
     def serialize(self):
         rsa_pub = self.public_key(default_backend())
-        return(rsa_pub.public_bytes(
+        formatted = rsa_pub.public_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo
-            )
         )
+        return(str(formatted, "utf-8"))
 
     def deserialize(self, data):
         key = serialization.load_pem_public_key(data, default_backend())
@@ -397,10 +396,11 @@ class PEMPrivate(ErisPrivate):
         if self.password:
             encryption_algorithm = serialization.BestAvailableEncryption(
                 bytes(self.password))
-        return(rsa_pub.private_bytes(
+        formatted = rsa_pub.private_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PrivateFormat.TraditionalOpenSSL,
-            encryption_algorithm=encryption_algorithm))
+            encryption_algorithm=encryption_algorithm)
+        return(str(formatted, "utf-8"))
 
     def deserialize(self, data):
         # data = str.encode(data)
@@ -483,7 +483,7 @@ class PGPPrivate(ErisPrivate):
             # "MPI of RSA secret prime value q (p < q)."
             self._q = key_material.q
             self._iqmp = rsa.rsa_crt_iqmp(key_material.p, key_material.q)
-            self._dmp1 = rsa.rsa_crt_dmp1(key_material.d, key_material.q)
+            self._dmp1 = rsa.rsa_crt_dmp1(key_material.d, key_material.p)
             self._dmq1 = rsa.rsa_crt_dmq1(key_material.d, key_material.q)
             self._public_numbers = ErisPublic(
                 e=key_material.e,
