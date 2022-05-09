@@ -8,7 +8,7 @@ import requests
 import paramiko
 import eris
 from eris import ErisPublic
-from hkp import KeyServer
+# from hkp import KeyServer
 
 
 class LokeyContext:
@@ -17,7 +17,7 @@ class LokeyContext:
 
 
 @click.group(invoke_without_command=True)
-@click.version_option("0.5.0")
+@click.version_option("0.8.1")
 # FIXME: I'm not happy with the idea of passing a password on the command line,
 #        this needs to be fixed ASAP
 @click.option('--password',
@@ -46,7 +46,7 @@ def cli(ctx, password):
     except Exception as e:
         raise click.ClickException(str(e))
     if not subcommand:
-        print ctx.obj.key
+        print(ctx.obj.key)
 
 
 @cli.group()
@@ -191,7 +191,7 @@ def keybase(ctx, query):
         value=value)
     r = requests.get(url)
     resp = r.json()
-    print resp['them'][0]['public_keys']['primary']['bundle']
+    print(resp['them'][0]['public_keys']['primary']['bundle'])
 
 
 @fetch.command()
@@ -219,7 +219,7 @@ def ssh(ctx, domain_name):
         client.connect(domain_name, username='lokey', timeout=5)
         key = fetch_key_policy.key.public_numbers
         key = ErisPublic(e=key.e, n=key.n)
-        print key.to('ssh')
+        print(key.to('ssh'))
     except Exception as e:
         msg = ('Got "{message}" when attempting '
                'to connect to {domain_name}').format(
@@ -267,7 +267,7 @@ def jwk(ctx, domain_name, key_id):
     for key in keys:
         if key['kid'] != key_id_to_print:
             continue
-        print json.dumps(key)
+        print(json.dumps(key))
 
 
 @fetch.command()
@@ -306,7 +306,7 @@ def github(ctx, github_username, key_id):
     for key in keys:
         if key['id'] != key_id_to_print:
             continue
-        print key['key']
+        print(key['key'])
 
 
 @fetch.command()
@@ -328,75 +328,75 @@ def tls(ctx, domain_name):
         raise click.ClickException(msg)
 
 
-@fetch.command()
-@click.pass_context
-@click.argument('search_string')
-@click.option('--key-id', help="ID of PGP key to print.")
-@click.option('--all',
-              is_flag=True,
-              default=False,
-              help="Search all keyservers.")
-@click.option('--server', help="PGP keyserver to search.")
-def pgp(ctx, search_string, key_id, all, server):
-    '''Search for a PGP key on keyservers.
+# @fetch.command()
+# @click.pass_context
+# @click.argument('search_string')
+# @click.option('--key-id', help="ID of PGP key to print.")
+# @click.option('--all',
+#               is_flag=True,
+#               default=False,
+#               help="Search all keyservers.")
+# @click.option('--server', help="PGP keyserver to search.")
+# def pgp(ctx, search_string, key_id, all, server):
+#     '''Search for a PGP key on keyservers.
 
-       The following keyservers are searched in order until a match is found:
+#        The following keyservers are searched in order until a match is found:
 
-       - pool.sks-keyservers.net
+#        - pool.sks-keyservers.net
 
-       - keys.gnupg.net
+#        - keys.gnupg.net
 
-       - pgp.mit.edu
+#        - pgp.mit.edu
 
-       - keyserver.ubuntu.com
+#        - keyserver.ubuntu.com
 
-       - zimmermann.mayfirst.org
-    '''
+#        - zimmermann.mayfirst.org
+#     '''
 
-    servers = []
-    if server:
-        servers.append(server)
-    else:
-        doc = pgp.__doc__
-        for line in doc.split("\n"):
-            delimiter = '       - '
-            if not line.startswith(delimiter):
-                continue
-            server = line.replace(delimiter, '')
-            servers.append(server)
+#     servers = []
+#     if server:
+#         servers.append(server)
+#     else:
+#         doc = pgp.__doc__
+#         for line in doc.split("\n"):
+#             delimiter = '       - '
+#             if not line.startswith(delimiter):
+#                 continue
+#             server = line.replace(delimiter, '')
+#             servers.append(server)
 
-    for server in servers:
-        addr = 'http://{}'.format(server)
-        click.echo('Searching {}'.format(addr), err=True)
-        serv = KeyServer(addr)
-        try:
-            responses = serv.search(search_string)
-        except Exception as e:
-            msg = "Error from server: {}".format(e.msg)
-            click.echo(msg, err=True)
-            continue
-        # FIXME: DRY up this bit of code with jwk code too
-        keys = []
-        for key in responses:
-            if 'RSA' in key.algo:
-                keys.append(key)
-        if not key_id and len(keys) > 1:
-            click.echo("Multiple keys found: ", err=True)
-            for key in keys:
-                click.echo("  - {}".format(key.keyid), err=True)
-            msg = "Printing the first key ('{}')".format(keys[0].keyid)
-            click.echo(msg, err=True)
-        key_id_to_print = None
-        if key_id:
-            key_id_to_print = key_id
-        else:
-            key_id_to_print = keys[0].keyid
-        for key in keys:
-            if key.keyid != key_id_to_print:
-                continue
-            print key.key
-        if not all:
-            return
+#     for server in servers:
+#         addr = 'http://{}'.format(server)
+#         click.echo('Searching {}'.format(addr), err=True)
+#         serv = KeyServer(addr)
+#         try:
+#             responses = serv.search(search_string)
+#         except Exception as e:
+#             msg = "Error from server: {}".format(e.msg)
+#             click.echo(msg, err=True)
+#             continue
+#         # FIXME: DRY up this bit of code with jwk code too
+#         keys = []
+#         for key in responses:
+#             if 'RSA' in key.algo:
+#                 keys.append(key)
+#         if not key_id and len(keys) > 1:
+#             click.echo("Multiple keys found: ", err=True)
+#             for key in keys:
+#                 click.echo("  - {}".format(key.keyid), err=True)
+#             msg = "Printing the first key ('{}')".format(keys[0].keyid)
+#             click.echo(msg, err=True)
+#         key_id_to_print = None
+#         if key_id:
+#             key_id_to_print = key_id
+#         else:
+#             key_id_to_print = keys[0].keyid
+#         for key in keys:
+#             if key.keyid != key_id_to_print:
+#                 continue
+#             print(key.key)
+#         if not all:
+#             return
 
 
 if __name__ == '__main__':
