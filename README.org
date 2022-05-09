@@ -939,12 +939,26 @@
     CLOCK: [2017-02-26 Sun 12:10]--[2017-02-26 Sun 12:40] =>  0:30
 *** Write "Credits" section
     Glider labs folks, Len, Jordan
-*** TODO Write inspiration
+*** DONE Write inspiration
     CLOCK: [2017-03-05 Sun 10:32]--[2017-03-05 Sun 10:54] =>  0:22
     CLOCK: [2017-03-04 Sat 22:22]--[2017-03-04 Sat 23:32] =>  1:10
     https://web.archive.org/web/20110828210530/http://vulnarb.com/
 *** TODO Verify that all private keys in repo are test keys
 *** TODO Make into literate document
+** v0.8.1
+*** Get lokey working locally again
+:LOGBOOK:
+CLOCK: [2022-05-06 Fri 23:06]--[2022-05-06 Fri 23:13] =>  0:07
+CLOCK: [2022-04-25 Mon 23:24]--[2022-04-26 Tue 10:51] => 11:27
+:END:
+
+This is the command to do local development on the =lokey= command:
+
+#+BEGIN_SRC shell
+python setup.py develop
+#+END_SRC
+*** Get lokey working with Python3
+
 ** v1.0.0
 *** Add test fixtures
     CLOCK: [2017-02-20 Mon 22:42]--[2017-02-20 Mon 22:55] =>  0:13
