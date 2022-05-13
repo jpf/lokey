@@ -28,6 +28,11 @@ import pgpy
 
 import jks
 
+#FIXME: Remove these by upgrading packages as needed
+import warnings
+warnings.filterwarnings(action='ignore',module='.*paramiko.*')
+warnings.filterwarnings(action='ignore',module='.*pgpy.*')
+
 transmuters = {}
 
 
@@ -163,7 +168,7 @@ class SSHPublic(ErisPublic):
             format=serialization.PublicFormat.OpenSSH)
         )
         if comment:
-            value += " " + comment
+            value += f" {comment}".encode("UTF-8")
         return value.decode()
 
     def deserialize(self, data):

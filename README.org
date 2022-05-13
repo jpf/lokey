@@ -961,6 +961,7 @@ python setup.py develop
 
 *** Write unit tests
 :LOGBOOK:
+CLOCK: [2022-05-12 Thu 22:00]--[2022-05-12 Thu 22:30] =>  0:30
 CLOCK: [2022-05-09 Mon 08:54]--[2022-05-09 Mon 09:45] =>  0:51
 CLOCK: [2022-05-09 Mon 07:00]--[2022-05-09 Mon 08:00] =>  1:00
 :END:
