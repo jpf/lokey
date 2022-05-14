@@ -959,6 +959,38 @@ python setup.py develop
 #+END_SRC
 *** Get lokey working with Python3
 
+*** Add support for fingerprinting SSH keys
+:LOGBOOK:
+CLOCK: [2022-05-13 Fri 21:17]--[2022-05-14 Sat 00:32] =>  3:15
+:END:
+
+https://github.com/openssh/openssh-portable/blob/457dce2cfef6a48f5442591cd8b21c7e8cba13f8/sshkey.c
+
+<e
+	case KEY_RSA:
+		if (key->rsa == NULL)
+			return SSH_ERR_INVALID_ARGUMENT;
+		RSA_get0_key(key->rsa, &rsa_n, &rsa_e, NULL);
+		if ((ret = sshbuf_put_cstring(b, typename)) != 0 ||
+		    (ret = sshbuf_put_bignum2(b, rsa_e)) != 0 ||
+		    (ret = sshbuf_put_bignum2(b, rsa_n)) != 0)
+			return ret;
+		break;
+
+
+typename:
+
+<e
+	{ "ssh-rsa", "RSA", NULL, KEY_RSA, 0, 0, 0 },
+	{ "rsa-sha2-256", "RSA", NULL, KEY_RSA, 0, 0, 1 },
+	{ "rsa-sha2-512", "RSA", NULL, KEY_RSA, 0, 0, 1 },
+
+
+
+	https://www.openssl.org/docs/man1.0.2/man3/BN_bn2bin.html
+	
+
+
 *** Write unit tests
 :LOGBOOK:
 CLOCK: [2022-05-12 Thu 22:00]--[2022-05-12 Thu 22:30] =>  0:30

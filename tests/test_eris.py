@@ -56,6 +56,21 @@ class TestEris(unittest.TestCase):
         got = obj.to("ssh", comment="joel@gibson.example")
         self.assertEqual(got, want)
 
+    def test_openssh_public_key_fingerprint(self):
+        self.read_key("rsa_1024_public.ssh")
+        transmuter = eris.SSHPublic()
+        transmuter.deserialize(self.data)
+
+        want = "29:83:bd:31:a8:41:e8:3c:55:36:ce:47:59:f1:5e:7d"
+        got = transmuter.fingerprint(algorithm="md5", encoding="hex")
+        self.assertEqual(got, want)
+
+        want = "ofBNOG7P0bVG5ArCfRBpWpYpud03G1EO8bovIRHXSf0"
+        got = transmuter.fingerprint(algorithm="sha256", encoding="base64")
+        self.assertEqual(got, want)
+        got = transmuter.fingerprint()
+        self.assertEqual(got, want)
+
     def test_openssh_private_key(self):
         self.read_key("rsa_1024_private.ssh")
         transmuter = eris.OpenSSHPrivate()

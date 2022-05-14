@@ -1,11 +1,12 @@
 import json
 import inspect
 
+import paramiko
+import hashlib
+
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import (
-    hashes,
-    serialization)
+from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509.oid import NameOID
 import base64
@@ -16,22 +17,19 @@ from pgpy.constants import (
     KeyFlags,
     HashAlgorithm,
     SymmetricKeyAlgorithm,
-    CompressionAlgorithm)
-from pgpy.packet.fields import (
-    RSAPub,
-    MPI,
-    RSAPriv)
-from pgpy.packet.packets import (
-    PubKeyV4,
-    PrivKeyV4)
+    CompressionAlgorithm,
+)
+from pgpy.packet.fields import RSAPub, MPI, RSAPriv
+from pgpy.packet.packets import PubKeyV4, PrivKeyV4
 import pgpy
 
 import jks
 
-#FIXME: Remove these by upgrading packages as needed
+# FIXME: Remove these by upgrading packages as needed
 import warnings
-warnings.filterwarnings(action='ignore',module='.*paramiko.*')
-warnings.filterwarnings(action='ignore',module='.*pgpy.*')
+
+warnings.filterwarnings(action="ignore", module=".*paramiko.*")
+warnings.filterwarnings(action="ignore", module=".*pgpy.*")
 
 transmuters = {}
 
@@ -62,47 +60,69 @@ class CanTransmute(object):
         if not docstring:
             docstring = str(self.__class__) + "\n"
         out = docstring + "\n"
-        numbers = ['e', 'n', 'd', 'p', 'q', 'd', 'dmp1', 'dmq1', 'iqmp']
+        numbers = ["e", "n", "d", "p", "q", "d", "dmp1", "dmq1", "iqmp"]
         for number_name in numbers:
             attr = "_" + number_name
             value = getattr(self, attr, False)
             if not value:
                 continue
-            out += ("\t{}: {}\n".format(number_name, value))
+            out += "\t{}: {}\n".format(number_name, value)
         return out
 
 
 class ErisPublic(CanTransmute, rsa.RSAPublicNumbers):
     def __init__(self, e=None, n=None):
-        self.key_type = 'Public'
+        self.key_type = "Public"
         # Allow empty objects:
         if e and n:
             super(ErisPublic, self).__init__(e, n)
 
+    def fingerprint(self, algorithm="sha256", encoding="base64"):
+        key = paramiko.PublicBlob.from_string(self.to("ssh"))
+        buf = key.key_blob
+
+        # The lines above are basically doing what is below.
+        # What I can't figure out is how to pack "e" and "n" into bytes!
+        # # buf = bytearray()
+        # # buf.extend(b"\x00\x00\x00\x07")
+        # # buf.extend("ssh-rsa".encode("utf-8"))
+        # # buf.extend(struct.pack(">I", self._e)) # This doesn't work!
+        # # buf.extend(struct.pack(">I", self._n))
+
+        hashed = None
+        out = ""
+        if algorithm == "md5":
+            hashed = hashlib.md5(buf).digest()
+        elif algorithm == "sha256":
+            hashed = hashlib.sha256(buf).digest()
+
+        if encoding == "hex":
+            out = ":".join([format(i, "02x") for i in hashed])
+        elif encoding == "base64":
+            out = base64.b64encode(hashed).decode("utf-8").strip("=")
+        return out
+
 
 class ErisPrivate(CanTransmute, rsa.RSAPrivateNumbers):
-    def __init__(self,
-                 p=None,
-                 q=None,
-                 d=None,
-                 dmp1=None,
-                 dmq1=None,
-                 iqmp=None,
-                 public_numbers=None):
-        self.key_type = 'Private'
+    def __init__(
+        self,
+        p=None,
+        q=None,
+        d=None,
+        dmp1=None,
+        dmq1=None,
+        iqmp=None,
+        public_numbers=None,
+    ):
+        self.key_type = "Private"
         self.password = None
         # Allow for empty objects:
         if p and q and d and dmp1 and dmq1 and iqmp and public_numbers:
-            super(ErisPrivate, self).__init__(p,
-                                              q,
-                                              d,
-                                              dmp1,
-                                              dmq1,
-                                              iqmp,
-                                              public_numbers)
+            super(ErisPrivate, self).__init__(p, q, d, dmp1, dmq1, iqmp, public_numbers)
+
 
 def intarr2long(arr):
-    return int(''.join(["%02x" % byte for byte in arr]), 16)
+    return int("".join(["%02x" % byte for byte in arr]), 16)
 
 
 def base64_to_long(data):
@@ -110,8 +130,9 @@ def base64_to_long(data):
         data = data.encode("ascii")
 
     # urlsafe_b64decode will happily convert b64encoded data
-    _d = base64.urlsafe_b64decode(bytes(data) + b'==')
-    return intarr2long(struct.unpack('%sB' % len(_d), _d))
+    _d = base64.urlsafe_b64decode(bytes(data) + b"==")
+    return intarr2long(struct.unpack("%sB" % len(_d), _d))
+
 
 def long2intarr(long_int):
     _bytes = []
@@ -123,49 +144,53 @@ def long2intarr(long_int):
 
 def long_to_base64(n):
     bys = long2intarr(n)
-    data = struct.pack('%sB' % len(bys), *bys)
+    data = struct.pack("%sB" % len(bys), *bys)
     if not len(data):
-        data = '\x00'
-    s = base64.urlsafe_b64encode(data).rstrip(b'=')
+        data = "\x00"
+    s = base64.urlsafe_b64encode(data).rstrip(b"=")
     return s.decode("ascii")
+
 
 @transmuter
 class JWKPublic(ErisPublic):
-    '''Public JSON Web Key (RFC7517)'''
+    """Public JSON Web Key (RFC7517)"""
+
     def __init__(self, *args, **kwargs):
         super(JWKPublic, self).__init__(args, kwargs)
 
     def serialize(self):
         json_payload = {
-            'e': long_to_base64(self._e),
-            'kty': 'RSA',
-            'n': long_to_base64(self._n)}
+            "e": long_to_base64(self._e),
+            "kty": "RSA",
+            "n": long_to_base64(self._n),
+        }
         jwk_payload = json.dumps(json_payload)
         return jwk_payload
 
     def deserialize(self, data):
         jwk = json.loads(data)
-        self._e = base64_to_long(jwk['e'])
-        self._n = base64_to_long(jwk['n'])
+        self._e = base64_to_long(jwk["e"])
+        self._n = base64_to_long(jwk["n"])
 
     def handles(self, sample):
-        sample = sample.decode('utf-8')
-        if '{' in sample and '"' in sample:
+        sample = sample.decode("utf-8")
+        if "{" in sample and '"' in sample:
             data = json.loads(sample)
-            return ('e' in data) and ('n' in data) and ('d' not in data)
+            return ("e" in data) and ("n" in data) and ("d" not in data)
 
 
 @transmuter
 class SSHPublic(ErisPublic):
-    '''Public OpenSSH Key'''
+    """Public OpenSSH Key"""
+
     def __init__(self, *args, **kwargs):
         super(SSHPublic, self).__init__(args, kwargs)
 
     def serialize(self, comment=None):
         rsa_pub = self.public_key(default_backend())
-        value = (rsa_pub.public_bytes(
+        value = rsa_pub.public_bytes(
             encoding=serialization.Encoding.OpenSSH,
-            format=serialization.PublicFormat.OpenSSH)
+            format=serialization.PublicFormat.OpenSSH,
         )
         if comment:
             value += f" {comment}".encode("UTF-8")
@@ -177,12 +202,13 @@ class SSHPublic(ErisPublic):
         self._n = key.public_numbers().n
 
     def handles(self, sample):
-        return sample.startswith(b'ssh-rsa ')
+        return sample.startswith(b"ssh-rsa ")
 
 
 @transmuter
 class OpenSSHPrivate(ErisPrivate):
-    '''Private Key in OpenSSH format'''
+    """Private Key in OpenSSH format"""
+
     def __init__(self, *args, **kwargs):
         super(OpenSSHPrivate, self).__init__(args, kwargs)
 
@@ -199,11 +225,12 @@ class OpenSSHPrivate(ErisPrivate):
         self._public_numbers = private_numbers._public_numbers
 
     def handles(self, sample):
-        return sample.startswith(b'-----BEGIN OPENSSH PRIVATE KEY')
+        return sample.startswith(b"-----BEGIN OPENSSH PRIVATE KEY")
 
 
 class SamplePublic(ErisPublic):
-    '''Example Class'''
+    """Example Class"""
+
     def __init__(self, *args, **kwargs):
         super(SamplePublic, self).__init__(args, kwargs)
 
@@ -219,7 +246,8 @@ class SamplePublic(ErisPublic):
 
 @transmuter
 class PGPPublic(ErisPublic):
-    '''Public PGP Key'''
+    """Public PGP Key"""
+
     def __init__(self, *args, **kwargs):
         super(PGPPublic, self).__init__(args, kwargs)
 
@@ -236,10 +264,7 @@ class PGPPublic(ErisPublic):
         pgp_key = pgpy.PGPKey()
         pgp_key._key = pub_key_v4
 
-        uid = pgpy.PGPUID.new(
-            name,
-            comment=comment,
-            email=email)
+        uid = pgpy.PGPUID.new(name, comment=comment, email=email)
         uid._parent = pgp_key
 
         pgp_key._uids.append(uid)
@@ -252,20 +277,23 @@ class PGPPublic(ErisPublic):
         self._n = key_material.n
 
     def handles(self, sample):
-        return sample.startswith(b'-----BEGIN PGP PUBLIC KEY BLOCK')
+        return sample.startswith(b"-----BEGIN PGP PUBLIC KEY BLOCK")
 
 
 @transmuter
 class X509Public(ErisPublic):
-    '''Public Key from an X.509 Certificate'''
+    """Public Key from an X.509 Certificate"""
+
     def __init__(self, *args, **kwargs):
         super(X509Public, self).__init__(args, kwargs)
 
     def serialize(self):
-        msg = ("Creating X.509 certificates is not supported.\n"
-               "Try creating a csr with a private key instead: \n"
-               "    'cat your-private-key | lokey to csr'")
-        return(msg)
+        msg = (
+            "Creating X.509 certificates is not supported.\n"
+            "Try creating a csr with a private key instead: \n"
+            "    'cat your-private-key | lokey to csr'"
+        )
+        return msg
 
     def deserialize(self, data):
         cert = x509.load_pem_x509_certificate(data, default_backend())
@@ -274,49 +302,57 @@ class X509Public(ErisPublic):
         self._n = key_material.n
 
     def handles(self, sample):
-        return sample.startswith(b'-----BEGIN CERT')
+        return sample.startswith(b"-----BEGIN CERT")
 
 
 # SMIME: CN=First Last/emailAddress=first.last@example.com
 # SSL: CN=www.example.com
 
+
 @transmuter
 class CSRPrivate(ErisPrivate):
-    '''Certificate Signing Request'''
+    """Certificate Signing Request"""
+
     def __init__(self, *args, **kwargs):
         super(CSRPrivate, self).__init__(args, kwargs)
 
-    def serialize(self,
-                  # password=None,
-                  country=u"US",
-                  state=u"CA",
-                  city=u"San Francisco",
-                  company=u"Lokey Examle",
-                  common_name=u"example.com"):
+    def serialize(
+        self,
+        # password=None,
+        country="US",
+        state="CA",
+        city="San Francisco",
+        company="Lokey Example",
+        common_name="example.com",
+    ):
         # This should be handled already
         # if not password:
         #     password = None
         key = serialization.load_pem_private_key(
-            self.to('pem'),
-            password=None,
-            backend=default_backend())
+            self.to("pem"), password=None, backend=default_backend()
+        )
 
-        subject = x509.Name([
-            x509.NameAttribute(NameOID.COUNTRY_NAME, country),
-            x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, state),
-            x509.NameAttribute(NameOID.LOCALITY_NAME, city),
-            x509.NameAttribute(NameOID.ORGANIZATION_NAME, company),
-            x509.NameAttribute(NameOID.COMMON_NAME, common_name),
-        ])
-        cert = x509.CertificateSigningRequestBuilder().subject_name(
-            subject
-        ).sign(key, hashes.SHA256(), default_backend())
+        subject = x509.Name(
+            [
+                x509.NameAttribute(NameOID.COUNTRY_NAME, country),
+                x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, state),
+                x509.NameAttribute(NameOID.LOCALITY_NAME, city),
+                x509.NameAttribute(NameOID.ORGANIZATION_NAME, company),
+                x509.NameAttribute(NameOID.COMMON_NAME, common_name),
+            ]
+        )
+        cert = (
+            x509.CertificateSigningRequestBuilder()
+            .subject_name(subject)
+            .sign(key, hashes.SHA256(), default_backend())
+        )
         return cert.public_bytes(serialization.Encoding.PEM)
 
 
 @transmuter
 class PEMPublic(ErisPublic):
-    '''Public Key in PEM format'''
+    """Public Key in PEM format"""
+
     def __init__(self, *args, **kwargs):
         super(PEMPublic, self).__init__(args, kwargs)
 
@@ -324,9 +360,9 @@ class PEMPublic(ErisPublic):
         rsa_pub = self.public_key(default_backend())
         formatted = rsa_pub.public_bytes(
             encoding=serialization.Encoding.PEM,
-            format=serialization.PublicFormat.SubjectPublicKeyInfo
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
         )
-        return(str(formatted, "utf-8"))
+        return str(formatted, "utf-8")
 
     def deserialize(self, data):
         key = serialization.load_pem_public_key(data, default_backend())
@@ -334,21 +370,23 @@ class PEMPublic(ErisPublic):
         self._n = key.public_numbers().n
 
     def handles(self, sample):
-        return sample.startswith(b'-----BEGIN PUBLIC KEY')
+        return sample.startswith(b"-----BEGIN PUBLIC KEY")
 
 
 @transmuter
 class JWKPrivate(ErisPrivate):
-    '''Private JSON Web Key (RFC7517)'''
+    """Private JSON Web Key (RFC7517)"""
+
     numbers = [
-            ('e', 'e'),
-            ('d', 'd'),
-            ('n', 'n'),
-            ('q', 'q'),
-            ('p', 'p'),
-            ('qi', 'iqmp'),
-            ('dq', 'dmq1'),
-            ('dp', 'dmp1')]
+        ("e", "e"),
+        ("d", "d"),
+        ("n", "n"),
+        ("q", "q"),
+        ("p", "p"),
+        ("qi", "iqmp"),
+        ("dq", "dmq1"),
+        ("dp", "dmp1"),
+    ]
 
     def __init__(self, *args, **kwargs):
         super(JWKPrivate, self).__init__(args, kwargs)
@@ -358,9 +396,9 @@ class JWKPrivate(ErisPrivate):
         self._e = self._public_numbers._e
         self._n = self._public_numbers._n
         for key, number in self.numbers:
-            json_payload[key] = long_to_base64(getattr(self, '_' + number))
+            json_payload[key] = long_to_base64(getattr(self, "_" + number))
         return (
-            '{{'
+            "{{"
             '"e": "{e}", '
             '"d": "{d}", '
             '"n": "{n}", '
@@ -369,28 +407,30 @@ class JWKPrivate(ErisPrivate):
             '"qi": "{qi}", '
             '"dq": "{dq}", '
             '"dp": "{dp}", '
-            '"kty": "RSA"}}').format(**json_payload)
+            '"kty": "RSA"}}'
+        ).format(**json_payload)
 
     def deserialize(self, data):
         jwk = json.loads(data)
         for key, number in self.numbers:
-            if key in ['e', 'n']:
+            if key in ["e", "n"]:
                 continue
-            setattr(self, '_' + number, base64_to_long(jwk[key]))
-        e = base64_to_long(jwk['e'])
-        n = base64_to_long(jwk['n'])
+            setattr(self, "_" + number, base64_to_long(jwk[key]))
+        e = base64_to_long(jwk["e"])
+        n = base64_to_long(jwk["n"])
         self._public_numbers = ErisPublic(e=e, n=n)
 
     def handles(self, sample):
-        sample = sample.decode('utf-8')
-        if '{' in sample and '"' in sample:
+        sample = sample.decode("utf-8")
+        if "{" in sample and '"' in sample:
             data = json.loads(sample)
-            return ('e' in data) and ('n' in data) and ('d' in data)
+            return ("e" in data) and ("n" in data) and ("d" in data)
 
 
 @transmuter
 class PEMPrivate(ErisPrivate):
-    '''Private Key in PEM format'''
+    """Private Key in PEM format"""
+
     def __init__(self, *args, **kwargs):
         super(PEMPrivate, self).__init__(args, kwargs)
 
@@ -400,12 +440,14 @@ class PEMPrivate(ErisPrivate):
         encryption_algorithm = serialization.NoEncryption()
         if self.password:
             encryption_algorithm = serialization.BestAvailableEncryption(
-                bytes(self.password))
+                bytes(self.password)
+            )
         formatted = rsa_pub.private_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PrivateFormat.TraditionalOpenSSL,
-            encryption_algorithm=encryption_algorithm)
-        return(str(formatted, "utf-8"))
+            encryption_algorithm=encryption_algorithm,
+        )
+        return str(formatted, "utf-8")
 
     def deserialize(self, data):
         # data = str.encode(data)
@@ -422,12 +464,13 @@ class PEMPrivate(ErisPrivate):
         self._public_numbers = private_numbers._public_numbers
 
     def handles(self, sample):
-        return sample.startswith(b'-----BEGIN RSA PRIVATE KEY')
+        return sample.startswith(b"-----BEGIN RSA PRIVATE KEY")
 
 
 @transmuter
 class JavaKeyStorePrivate(ErisPrivate):
-    '''Private Key in Java Keystore (JKS) format'''
+    """Private Key in Java Keystore (JKS) format"""
+
     def __init__(self, *args, **kwargs):
         super(JavaKeyStorePrivate, self).__init__(args, kwargs)
 
@@ -446,9 +489,7 @@ class JavaKeyStorePrivate(ErisPrivate):
         alias, private_key = keys[0]
 
         if private_key.algorithm_oid != jks.util.RSA_ENCRYPTION_OID:
-            raise ValueError(
-                f"Unsupported JKS algorithm: {private_key.algorithm_oid}"
-            )
+            raise ValueError(f"Unsupported JKS algorithm: {private_key.algorithm_oid}")
 
         # print(f"Private key: {alias}")
         rsa_priv = serialization.load_der_private_key(
@@ -464,12 +505,13 @@ class JavaKeyStorePrivate(ErisPrivate):
         self._public_numbers = private_numbers._public_numbers
 
     def handles(self, sample):
-        return sample.startswith(b'\xfe\xed\xfe\xed')
+        return sample.startswith(b"\xfe\xed\xfe\xed")
 
 
 @transmuter
 class PGPPrivate(ErisPrivate):
-    '''Private PGP Key'''
+    """Private PGP Key"""
+
     def __init__(self, *args, **kwargs):
         super(PGPPrivate, self).__init__(args, kwargs)
 
@@ -490,9 +532,7 @@ class PGPPrivate(ErisPrivate):
             self._iqmp = rsa.rsa_crt_iqmp(key_material.p, key_material.q)
             self._dmp1 = rsa.rsa_crt_dmp1(key_material.d, key_material.p)
             self._dmq1 = rsa.rsa_crt_dmq1(key_material.d, key_material.q)
-            self._public_numbers = ErisPublic(
-                e=key_material.e,
-                n=key_material.n)
+            self._public_numbers = ErisPublic(e=key_material.e, n=key_material.n)
 
     def serialize(self, name, comment, email):
         rsa_priv = RSAPriv()
@@ -523,32 +563,36 @@ class PGPPrivate(ErisPrivate):
             usage={
                 KeyFlags.Sign,
                 KeyFlags.EncryptCommunications,
-                KeyFlags.EncryptStorage},
+                KeyFlags.EncryptStorage,
+            },
             hashes=[
                 HashAlgorithm.SHA256,
                 HashAlgorithm.SHA384,
                 HashAlgorithm.SHA512,
-                HashAlgorithm.SHA224],
+                HashAlgorithm.SHA224,
+            ],
             ciphers=[
                 SymmetricKeyAlgorithm.AES256,
                 SymmetricKeyAlgorithm.AES192,
-                SymmetricKeyAlgorithm.AES128],
+                SymmetricKeyAlgorithm.AES128,
+            ],
             compression=[
                 CompressionAlgorithm.ZLIB,
                 CompressionAlgorithm.BZ2,
                 CompressionAlgorithm.ZIP,
-                CompressionAlgorithm.Uncompressed])
+                CompressionAlgorithm.Uncompressed,
+            ],
+        )
 
         if self.password:
             pgp_key.protect(
-                self.password,
-                SymmetricKeyAlgorithm.AES256,
-                HashAlgorithm.SHA256)
+                self.password, SymmetricKeyAlgorithm.AES256, HashAlgorithm.SHA256
+            )
 
         return str(pgp_key)
 
     def handles(self, sample):
-        return sample.startswith(b'-----BEGIN PGP PRIVATE KEY BLOCK')
+        return sample.startswith(b"-----BEGIN PGP PRIVATE KEY BLOCK")
 
 
 def load(f, password=None):
@@ -570,6 +614,5 @@ def load(f, password=None):
         cls.deserialize(data)
         return cls
     else:
-        msg = ("Input is not recognized. "
-               "Got this on input:\n\n{}").format(data)
+        msg = ("Input is not recognized. " "Got this on input:\n\n{}").format(data)
         raise ValueError(msg)
