@@ -591,6 +591,24 @@ class PGPPrivate(ErisPrivate):
 
         return str(pgp_key)
 
+    def fingerprint(self, algorithm="sha256", encoding="base64"):
+        rsa_priv = RSAPriv()
+        rsa_priv.e = MPI(self.public_numbers._e)
+        rsa_priv.n = MPI(self.public_numbers._n)
+        rsa_priv.d = MPI(self._d)
+        rsa_priv.p = MPI(self._p)
+        rsa_priv.q = MPI(self._q)
+        # https://github.com/SecurityInnovation/PGPy/blob/f08afed730816e71eafa0dd59ce77d8859ce24b5/pgpy/packet/fields.py#L1116
+        rsa_priv.u = MPI(rsa.rsa_crt_iqmp(self._q, self._p))
+        rsa_priv._compute_chksum()
+
+        pgp_key = PrivKeyV4()
+        pgp_key.pkalg = PubKeyAlgorithm.RSAEncryptOrSign
+        pgp_key.keymaterial = rsa_priv
+        pgp_key.update_hlen()
+
+        return pgp_key.fingerprint
+
     def handles(self, sample):
         return sample.startswith(b"-----BEGIN PGP PRIVATE KEY BLOCK")
 

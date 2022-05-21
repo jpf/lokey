@@ -990,7 +990,28 @@ typename:
 	https://www.openssl.org/docs/man1.0.2/man3/BN_bn2bin.html
 	
 
+*** Add support for fingerprinting x509 keys
+:LOGBOOK:
+CLOCK: [2022-05-14 Sat 22:25]--[2022-05-14 Sat 22:46] =>  0:21
+:END:
+https://www.rfc-editor.org/rfc/rfc3280#section-4.2.1.2
 
+Fingerprints are over the ENTIRE certificate, boo
+
+*** Add support for fingerprinting Keystore keys
+:LOGBOOK:
+CLOCK: [2022-05-14 Sat 22:46]--[2022-05-14 Sat 23:01] =>  0:15
+:END:
+
+https://github.com/openjdk-mirror/jdk7u-jdk/blob/f4d80957e89a19a29bb9f9807d2a28351ed7f7df/src/windows/classes/sun/security/mscapi/RSAPublicKey.java#L155-L168
+
+
+
+*** Add support for fingerprinting PGP keys
+:LOGBOOK:
+CLOCK: [2022-05-21 Sat 10:09]--[2022-05-21 Sat 11:07] =>  0:58
+CLOCK: [2022-05-14 Sat 12:42]--[2022-05-14 Sat 13:32] =>  0:50
+:END:
 *** Write unit tests
 :LOGBOOK:
 CLOCK: [2022-05-12 Thu 22:00]--[2022-05-12 Thu 22:30] =>  0:30
@@ -1481,6 +1502,9 @@ Yikes! I'm glad I'm writing these tests, I had a subtle bug in the code that con
     - PEM packages
     - GPG keys with sub-keys, etc
 *** Support for key stores, like java key store, or mac keychain, or GPG keychain
+:LOGBOOK:
+CLOCK: [2022-05-21 Sat 11:07]--[2022-05-21 Sat 11:07] =>  0:00
+:END:
 ** vNext
 *** Add support for other key formats
 **** TODO pkcs12?

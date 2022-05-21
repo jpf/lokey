@@ -3,6 +3,7 @@ import eris
 from tests.shared import ExpectedRSANumbers
 from tests.shared import ExpectedKeystoreRSANumbers
 import json
+import time_machine
 
 
 class TestEris(unittest.TestCase):
@@ -125,25 +126,35 @@ class TestEris(unittest.TestCase):
         transmuter = eris.PEMPrivate()
         self.assertHandlesPrivateKey(transmuter)
 
+    def test_PEMPrivate_output(self):
+        obj = self.eris_private
+        self.read_key("rsa_1024_private.pem")
+        want = self.data.decode().strip()
+        self.assertEqual(type(want), str)
+        got = obj.to("pem").strip()
+        self.assertEqual(type(got), str)
+        self.assertEqual(want, got)
+
     def test_JavaKeyStorePrivate(self):
         self.read_key("rsa_1024_keystore.jks")
         transmuter = eris.JavaKeyStorePrivate()
         self.expected = ExpectedKeystoreRSANumbers()
         self.assertHandlesPrivateKey(transmuter)
 
-    @unittest.skip("Need to write test")
     def test_PGPPublic(self):
         self.read_key("rsa_1024_public.pgp")
         transmuter = eris.PGPPublic()
         self.assertHandlesPublicKey(transmuter)
-        self.assertTrue(False)
 
-    @unittest.skip("Eris doesn't yet handle reading name, comment, or email from a key")
+    @time_machine.travel("1970-01-01 00:00 +0000")
     def test_PGPPublic_output(self):
         obj = self.eris_public
         self.read_key("rsa_1024_public.pgp")
         want = self.data.decode().strip()
-        got = obj.to("pgp", name="foo", comment="foo", email="foo")
+        got = obj.to(
+            "pgp", name="Example", comment="", email="example@example.com"
+        ).strip()
+        print(got)
         self.assertEqual(got, want)
 
     def test_PGPPrivate(self):
@@ -152,9 +163,35 @@ class TestEris(unittest.TestCase):
         transmuter.password = "password"
         self.assertHandlesPrivateKey(transmuter)
 
-    @unittest.skip
+    @time_machine.travel("1970-01-01 00:00 +0000")
+    def test_PGPPrivate_fingerprint(self):
+        self.read_key("rsa_1024_private.pgp")
+        transmuter = eris.PGPPrivate()
+        transmuter.password = "password"
+        transmuter.deserialize(self.data)
+
+        want = "6613 6F85 1297 20FF 8521  6F67 1C7D 3F3A 22AB BEB7"
+        got = transmuter.fingerprint()
+        self.assertEqual(want, got)
+
+        self.assertHandlesPrivateKey(transmuter)
+
+    @unittest.skip("To be implemented")
     def test_X509Public(self):
         self.assertTrue(False)
+
+    @unittest.skip("To be implemented")
+    def test_X509Public_fingerprint(self):
+        self.read_key("example.com.pem")
+        transmuter = eris.X509Public()
+
+        transmuter.deserialize(self.data)
+
+        want = "7F:2F:E8:D6:B1:8E:9A:47:83:92:56:CD:97:93:8D:AA:70:E8:51:57:50:29:8D:DB:A2:F3:F4:B8:44:01:13:FC"
+        got = transmuter.fingerprint(algorithm="sha256", encoding="hex")
+        self.assertEqual(got, want)
+        got = transmuter.fingerprint()
+        self.assertEqual(got, want)
 
     @unittest.skip
     def test_CSRPrivate(self):
